@@ -7,4 +7,3 @@ export const templatePaths = {
     HONO: '/vibecode-starters/hono-nodejs-starter',
     ANGULAR: '/vibecode-starters/angular',
   };
-  

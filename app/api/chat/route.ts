@@ -39,7 +39,8 @@ Keep responses concise but comprehensive. Use code blocks with language specific
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "codellama:latest",
+        // model: "codellama:latest",
+        model: "phi3:mini",
         prompt,
         stream: false,
         options: {
@@ -100,7 +101,8 @@ Return only the enhanced prompt, nothing else.`
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "codellama:latest",
+        // model: "codellama:latest",
+        model: "phi3:mini",
         prompt: enhancementPrompt,
         stream: false,
         options: {
