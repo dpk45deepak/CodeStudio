@@ -1,3 +1,4 @@
+import type { Viewport } from "next";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
@@ -36,8 +37,6 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
 
-  themeColor: "#020617",
-
   openGraph: {
     title: "DevTgthr — SyntaxLab",
     description:
@@ -63,6 +62,12 @@ export const metadata: Metadata = {
   },
 };
 
+
+export const viewport: Viewport = {
+  themeColor: "#020617",
+};
+
+
 export default async function RootLayout({
   children,
 }: {
@@ -71,10 +76,8 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${poppins.className} antialiased`}
-      >
+    <html lang="en" suppressHydrationWarning className="h-full">
+      <body className={`${poppins.className} antialiased min-h-full`}>
         <SessionProvider session={session}>
           <ThemeProvider
             attribute="class"
