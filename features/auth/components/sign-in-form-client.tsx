@@ -23,25 +23,25 @@ await signIn("github")
 
 const SignInFormClient = () => {
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md bg-gray-900 border-gray-800">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">
+        <CardTitle className="text-2xl font-bold text-center text-gray-100">
           Sign In
         </CardTitle>
-        <CardDescription className="text-center">
+        <CardDescription className="text-center text-gray-400">
           Choose your preferred sign-in method
         </CardDescription>
       </CardHeader>
 
       <CardContent className="grid gap-4">
         <form action={handleGoogleSignIn}>
-          <Button type="submit" variant={"outline"} className="w-full">
+          <Button type="submit" variant={"outline"} className="w-full bg-gray-800 border-gray-700 text-gray-100 hover:bg-gray-700">
             <Chrome className="mr-2 h-4 w-4" />
             <span>Sign in with google</span>
           </Button>
         </form>
         <form action={handleGithubSignIn}>
-          <Button type="submit" variant={"outline"} className="w-full">
+          <Button type="submit" variant={"outline"} className="w-full bg-gray-800 border-gray-700 text-gray-100 hover:bg-gray-700">
             <Github className="mr-2 h-4 w-4" />
             <span>Sign in with github</span>
           </Button>
@@ -49,13 +49,13 @@ const SignInFormClient = () => {
       </CardContent>
 
       <CardFooter>
-        <p className="text-sm text-center text-gray-500 dark:text-gray-400 w-full">
+        <p className="text-sm text-center text-gray-500 w-full">
           By signing in, you agree to our{" "}
-          <a href="#" className="underline hover:text-primary">
+          <a href="#" className="underline hover:text-blue-400">
             Terms of Service
           </a>{" "}
           and{" "}
-          <a href="#" className="underline hover:text-primary">
+          <a href="#" className="underline hover:text-blue-400">
             Privacy Policy
           </a>
           .

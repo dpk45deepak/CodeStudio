@@ -133,7 +133,7 @@ export function TemplateFileTree({
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>{title}</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-gray-300">{title}</SidebarGroupLabel>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <SidebarGroupAction>
@@ -271,9 +271,9 @@ function TemplateNode({
     return (
       <SidebarMenuItem>
         <div className="flex items-center group">
-          <SidebarMenuButton isActive={isSelected} onClick={() => onFileSelect?.(file)} className="flex-1">
+          <SidebarMenuButton isActive={isSelected} onClick={() => onFileSelect?.(file)} className="flex-1 text-gray-200">
             <File className="h-4 w-4 mr-2 shrink-0" />
-            <span>{fileName}</span>
+            <span className="text-gray-200">{fileName}</span>
           </SidebarMenuButton>
 
           <DropdownMenu>
@@ -383,10 +383,10 @@ function TemplateNode({
         >
           <div className="flex items-center group">
             <CollapsibleTrigger asChild>
-              <SidebarMenuButton className="flex-1">
-                <ChevronRight className="transition-transform" />
-                <Folder className="h-4 w-4 mr-2 shrink-0" />
-                <span>{folderName}</span>
+              <SidebarMenuButton className="flex-1 text-gray-200">
+                <ChevronRight className="transition-transform text-gray-400" />
+                <Folder className="h-4 w-4 mr-2 shrink-0 text-yellow-400" />
+                <span className="text-gray-200">{folderName}</span>
               </SidebarMenuButton>
             </CollapsibleTrigger>
 

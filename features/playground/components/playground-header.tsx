@@ -32,21 +32,22 @@ export function PlaygroundHeader() {
   const hasUnsavedChanges = openFiles.some((f) => f.hasUnsavedChanges)
 
   return (
-    <header className="h-14 border-b flex items-center px-4 justify-between">
+    <header className="h-14 border-b border-gray-800 flex items-center px-4 justify-between bg-gray-900">
       <div className="flex items-center">
         <SidebarTrigger className="mr-2" />
-        <h1 className="text-lg font-semibold">{playgroundData?.name || "Code Editor"}</h1>
+        <h1 className="text-lg font-semibold text-gray-100">{playgroundData?.name || "Code Editor"}</h1>
       </div>
 
       {selectedFile && (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-gray-400">
             {selectedFile.fileExtension ? `${selectedFile.filename}.${selectedFile.fileExtension}` : selectedFile.filename}
           </span>
 
           <Button
             size="sm"
             variant="outline"
+            className="bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700"
             onClick={() => handleSave()}
             disabled={!selectedFile.hasUnsavedChanges}
           >
@@ -54,14 +55,14 @@ export function PlaygroundHeader() {
             Save
           </Button>
 
-          <Button size="sm" variant="outline" onClick={handleSaveAll} disabled={!hasUnsavedChanges}>
+          <Button size="sm" variant="outline" className="bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700" onClick={handleSaveAll} disabled={!hasUnsavedChanges}>
             <Save className="h-4 w-4 mr-2" />
             Save All
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" className="bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700">
                 <Settings className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

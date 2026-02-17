@@ -8,42 +8,87 @@ import { Toaster } from "@/components/ui/sonner";
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-
-
-})
+  weight: ["300", "400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
-  title: "VibeCode - Editor",
-  description: "VibeCode - Editor - Code Editor For VibeCoders is a free online code editor that lets you write, debug, and run your code in the browser. It is an open source editor that is easy to use and has a simple interface. It is also a great way to learn programming and get started with coding.",
+  title: {
+    default: "DevTgthr — SyntaxLab",
+    template: "%s | DevTgthr",
+  },
+
+  description:
+    "SyntaxLab is an AI-powered collaborative code editor for modern developers. Write, debug, and build together with real-time teamwork and intelligent insights.",
+
+  keywords: [
+    "DevTgthr",
+    "SyntaxLab",
+    "online code editor",
+    "AI coding platform",
+    "collaborative coding",
+  ],
+
+  authors: [{ name: "DevTgthr Team" }],
+
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+
+  themeColor: "#020617",
+
+  openGraph: {
+    title: "DevTgthr — SyntaxLab",
+    description:
+      "Next-generation collaborative coding platform powered by AI.",
+    url: "https://devtgthr.com",
+    siteName: "DevTgthr",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "DevTgthr — SyntaxLab",
+    description: "Build together. Code smarter.",
+    images: ["/og.png"],
+  },
 };
 
 export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const session = await auth();
 
-  const session = await auth()
   return (
-    <SessionProvider session={session}>
     <html lang="en" suppressHydrationWarning>
       <body
-        className={` ${poppins.className} antialiased`}
+        className={`${poppins.className} antialiased`}
       >
-        <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-        >
+        <SessionProvider session={session}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
             <div className="flex flex-col min-h-screen">
-              <Toaster/>
-              <div className="flex-1">{children}</div>
+              <Toaster richColors position="top-center" />
+              <main className="flex-1">{children}</main>
             </div>
-        </ThemeProvider>
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
-    </SessionProvider>
   );
 }

@@ -33,7 +33,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           <div className="flex items-center gap-3">
             <div
               className="relative w-12 h-12 flex items-center justify-center rounded-full"
-              style={{ backgroundColor: "#61DAFB15" }}
+              style={{ backgroundColor: "#6366f115" }}
             >
               <Image
                 src={getTemplateIcon(project.template) || "/placeholder.svg"}
@@ -44,8 +44,8 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-gray-900">{project.title}</h3>
-              <Badge variant="outline" className="bg-[#E93F3F15] text-[#E93F3F] border-[#E93F3F] mt-1">
+              <h3 className="text-xl font-bold text-gray-100">{project.title}</h3>
+              <Badge variant="outline" className="bg-indigo-500/15 text-indigo-400 border-indigo-400/30 mt-1">
                 {project.template}
               </Badge>
             </div>
@@ -64,9 +64,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           </div>
         </div>
 
-        <p className="text-gray-600 mb-4 line-clamp-2">{project.description}</p>
+        <p className="text-gray-300 mb-4 line-clamp-2">{project.description}</p>
 
-        <div className="flex flex-col gap-2 text-sm text-gray-500">
+        <div className="flex flex-col gap-2 text-sm text-gray-400">
           <div className="flex items-center gap-2">
             <User size={14} />
             <span>{project.user.name}</span>

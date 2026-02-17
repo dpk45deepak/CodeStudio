@@ -322,12 +322,12 @@ const MainPlaygroundPage: React.FC = () => {
   // Error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4">
-        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-        <h2 className="text-xl font-semibold text-red-600 mb-2">
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4 bg-gray-950">
+        <AlertCircle className="h-12 w-12 text-red-400 mb-4" />
+        <h2 className="text-xl font-semibold text-red-300 mb-2">
           Something went wrong
         </h2>
-        <p className="text-gray-600 mb-4">{error}</p>
+        <p className="text-gray-400 mb-4">{error}</p>
         <Button onClick={() => window.location.reload()} variant="destructive">
           Try Again
         </Button>
@@ -338,9 +338,9 @@ const MainPlaygroundPage: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4">
-        <div className="w-full max-w-md p-6 rounded-lg shadow-sm border">
-          <h2 className="text-xl font-semibold mb-6 text-center">
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4 bg-gray-950">
+        <div className="w-full max-w-md p-6 rounded-lg shadow-sm border bg-gray-900 border-gray-800">
+          <h2 className="text-xl font-semibold mb-6 text-center text-gray-100">
             Loading Playground
           </h2>
           <div className="mb-8">
@@ -364,9 +364,9 @@ const MainPlaygroundPage: React.FC = () => {
   // No template data
   if (!templateData) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4">
-        <FolderOpen className="h-12 w-12 text-amber-500 mb-4" />
-        <h2 className="text-xl font-semibold text-amber-600 mb-2">
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4 bg-gray-950">
+        <FolderOpen className="h-12 w-12 text-amber-400 mb-4" />
+        <h2 className="text-xl font-semibold text-amber-300 mb-2">
           No template data available
         </h2>
         <Button onClick={() => window.location.reload()} variant="outline">
@@ -569,12 +569,12 @@ const MainPlaygroundPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col h-full items-center justify-center text-muted-foreground gap-4">
-                <FileText className="h-16 w-16 text-gray-300" />
+              <div className="flex flex-col h-full items-center justify-center text-muted-foreground gap-4 bg-gray-950">
+                <FileText className="h-16 w-16 text-gray-400" />
                 <div className="text-center">
-                  <p className="text-lg font-medium">No files open</p>
+                  <p className="text-lg font-medium text-gray-300">No files open</p>
                   <p className="text-sm text-gray-500">
-                    Select a file from the sidebar to start editing
+                    Select a file from sidebar to start editing
                   </p>
                 </div>
               </div>

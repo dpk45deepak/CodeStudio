@@ -535,7 +535,7 @@ export const PlaygroundEditor = ({
     <div className="h-full relative">
       {/* Loading indicator */}
       {suggestionLoading && (
-        <div className="absolute top-2 right-2 z-10 bg-red-100 dark:bg-red-900 px-2 py-1 rounded text-xs text-red-700 dark:text-red-300 flex items-center gap-1">
+        <div className="absolute top-2 right-2 z-10 bg-red-900 px-2 py-1 rounded text-xs text-red-300 flex items-center gap-1">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
           AI thinking...
         </div>
@@ -543,7 +543,7 @@ export const PlaygroundEditor = ({
 
       {/* Active suggestion indicator */}
       {currentSuggestionRef.current && !suggestionLoading && (
-        <div className="absolute top-2 right-2 z-10 bg-green-100 dark:bg-green-900 px-2 py-1 rounded text-xs text-green-700 dark:text-green-300 flex items-center gap-1">
+        <div className="absolute top-2 right-2 z-10 bg-green-900 px-2 py-1 rounded text-xs text-green-300 flex items-center gap-1">
           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
           Press Tab to accept
         </div>

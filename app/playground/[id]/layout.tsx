@@ -8,7 +8,9 @@ export default function PlaygroundLayout({
 }) {
   return (
     <SidebarProvider>
-      {children}
+      <div className="flex min-h-screen w-full bg-gray-950">
+        {children}
+      </div>
     </SidebarProvider>
   );
 }

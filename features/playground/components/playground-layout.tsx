@@ -34,10 +34,10 @@ export function PlaygroundLayout() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4">
-        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-        <h2 className="text-xl font-semibold text-red-600 mb-2">Something went wrong</h2>
-        <p className="text-gray-600 mb-4">{error}</p>
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4 bg-gray-950">
+        <AlertCircle className="h-12 w-12 text-red-400 mb-4" />
+        <h2 className="text-xl font-semibold text-red-300 mb-2">Something went wrong</h2>
+        <p className="text-gray-400 mb-4">{error}</p>
         <Button onClick={fetchPlaygroundData} variant="destructive">
           Try Again
         </Button>
@@ -47,9 +47,9 @@ export function PlaygroundLayout() {
 
   if (loadingStep < 3) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4">
-        <div className="w-full max-w-md p-6 rounded-lg shadow-sm border">
-          <h2 className="text-xl font-semibold mb-6 text-center">Loading Playground</h2>
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4 bg-gray-950">
+        <div className="w-full max-w-md p-6 rounded-lg shadow-sm border bg-gray-900 border-gray-800">
+          <h2 className="text-xl font-semibold mb-6 text-center text-gray-100">Loading Playground</h2>
           <div className="mb-8">
             <LoadingStep currentStep={loadingStep} step={1} label="Loading playground metadata" />
             <LoadingStep currentStep={loadingStep} step={2} label="Loading template structure" />
@@ -57,7 +57,7 @@ export function PlaygroundLayout() {
           </div>
           <div className="w-full h-2 rounded-full overflow-hidden">
             <div
-              className="bg-red-600 h-full transition-all duration-300 ease-in-out"
+              className="bg-blue-500 h-full transition-all duration-300 ease-in-out"
               style={{ width: `${(loadingStep / 3) * 100}%` }}
             />
           </div>
@@ -68,15 +68,15 @@ export function PlaygroundLayout() {
 
   if (!templateData) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4">
-        <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Loading template data...</h2>
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4 bg-gray-950">
+        <Loader2 className="h-12 w-12 text-blue-400 animate-spin mb-4" />
+        <h2 className="text-xl font-semibold text-gray-100 mb-2">Loading template data...</h2>
       </div>
     )
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col bg-gray-950">
       <PlaygroundHeader />
       <PlaygroundEditor
         activeFile={activeFile}

@@ -1,33 +1,54 @@
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 import Link from "next/link";
-export default function Home() {
-   
-  return (
-    <div className=" z-20 flex flex-col items-center justify-start min-h-screen py-2 mt-10">
-      
-      <div className="flex flex-col justify-center items-center my-5">
-      <Image src={"/hero.svg"} alt="Hero-Section" height={500}  width={500}/>
-      
-      <h1 className=" z-20 text-6xl mt-5 font-extrabold text-center bg-clip-text text-transparent bg-gradient-to-r from-rose-500 via-red-500 to-pink-500 dark:from-rose-400 dark:via-red-400 dark:to-pink-400 tracking-tight leading-[1.3] ">
-        Vibe Code With with Intelligence
-      </h1>
-      </div>
-     
+import FloatingIcons from "@/components/Animation/FloatingIcons";
 
-      <p className="mt-2 text-lg text-center text-gray-600 dark:text-gray-400 px-5 py-10 max-w-2xl">
-        VibeCode Editor is a powerful and intelligent code editor that enhances
-        your coding experience with advanced features and seamless integration.
-        It is designed to help you write, debug, and optimize your code
-        efficiently.
-      </p>
-      <Link href={"/dashboard"}>
-        <Button variant={"brand"} className="mb-4" size={"lg"}>
-          Get Started
-          <ArrowUpRight className="w-3.5 h-3.5" />
-        </Button>
-      </Link>
+export default function Home() {
+  return (
+    <div className="relative min-h-screen flex flex-col items-center justify-start px-6 pt-20 overflow-hidden bg-gray-950">
+      <FloatingIcons />
+
+      {/* HERO CONTENT */}
+      <div className="relative z-20 flex flex-col items-center text-center max-w-4xl">
+
+        {/* BRAND BADGE */}
+        <div className="flex items-center gap-2 text-sm font-semibold text-teal-300 bg-gray-950 border border-border px-5 py-2 rounded-full backdrop-blur-md shadow-lg">
+          <Sparkles className="w-4 h-4 text-teal-400" />
+          DevTgthr • SyntaxLab
+        </div>
+
+        {/* MAIN HEADING */}
+        <h1 className="mt-8 text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.15]">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-teal-400 to-indigo-400">
+            Code Together.
+          </span>
+          <br />
+          <span className="text-foreground">
+            Build Smarter.
+          </span>
+        </h1>
+
+        {/* DESCRIPTION */}
+        <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
+          <span className="font-semibold text-foreground">
+            DevTgthr SyntaxLab
+          </span>{" "}
+          is a next-generation collaborative coding platform powered by AI.
+          Write, debug, and ship faster with real-time teamwork, intelligent
+          insights, and a seamless developer experience.
+        </p>
+
+        {/* CTA */}
+        <Link href={"/dashboard"}>
+          <Button
+            size="lg"
+            className="mt-12 text-lg px-10 py-7 rounded-xl bg-gradient-to-r from-blue-400 via-teal-500 to-teal-600 hover:opacity-90 shadow-xl shadow-blue-500/30 transition-all duration-300 hover:scale-105"
+          >
+            Start Building Now
+            <ArrowUpRight className="w-5 h-5 ml-3" />
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }

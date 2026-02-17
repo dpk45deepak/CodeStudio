@@ -6,10 +6,10 @@ import type { Metadata } from "next";
 // import { usePathname } from "next/navigation";
 
 export const metadata: Metadata = {
-    title: {
-        template: "VibeCode - Editor ",
-        default: "Code Editor For VibeCoders - VibeCode",
-    },
+  title: {
+    template: "%s | DevTgthr",
+    default: "DevTgthr — SyntaxLab",
+  },
 };
 
 export default function HomeLayout({
@@ -20,20 +20,23 @@ export default function HomeLayout({
     return (
         <>
             <Header />
+
             <div
-        className={cn(
-          "absolute inset-0",
-          "[background-size:40px_40px]",
-          "[background-image:linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
-          "dark:[background-image:linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]",
-        )}
-      />
-       <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-black"/>
-      
-            <main className="z-20 relative w-full pt-0 md:pt-0  ">
-          
+                className={cn(
+                    "absolute inset-0 -z-10",
+                    "[background-size:40px_40px]",
+                    "[background-image:linear-gradient(to_right,rgba(56,189,248,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(99,102,241,0.08)_1px,transparent_1px)]"
+                )}
+            />
+
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center -z-10">
+                <div className="w-[700px] h-[700px] bg-gradient-to-r from-blue-500/20 via-teal-400/20 to-indigo-500/20 blur-[140px] rounded-full" />
+            </div>
+
+            <main className="relative z-10 w-full min-h-screen bg-gray-950">
                 {children}
             </main>
+
             <Footer />
         </>
     );
