@@ -1150,6 +1150,12 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                               children,
                               className,
                               inline: _inline,
+                              ...props
+                            }: {
+                              children?: React.ReactNode;
+                              className?: string;
+                              inline?: boolean;
+                              [key: string]: any;
                             }) => (
                               <EnhancedCodeBlock
                                 className={className}

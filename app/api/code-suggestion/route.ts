@@ -50,9 +50,16 @@ export async function POST(request: NextRequest) {
         generatedAt: new Date().toISOString(),
       },
     })
-  } catch (error: any) {
-    console.error("Context analysis error:", error)
-    return NextResponse.json({ error: "Internal server error", message: error.message }, { status: 500 })
+} catch (error: unknown) {
+  console.error("Context analysis error:", error)
+
+  const message =
+    error instanceof Error ? error.message : "Unknown error"
+
+  return NextResponse.json(
+    { error: "Internal server error", message },
+    { status: 500 }
+  )
   }
 }
 
@@ -233,16 +240,8 @@ function detectIncompletePatterns(line: string, column: number): string[] {
   if (/^\s*(function|def)\s*$/.test(beforeCursor.trim())) patterns.push("function")
   if (/\{\s*$/.test(beforeCursor)) patterns.push("object")
   if (/\[\s*$/.test(beforeCursor)) patterns.push("array")
-  if (/=\s*$/.test(beforeCursor)) patterns.push("assignment")
+  if (/\=\s*$/.test(beforeCursor)) patterns.push("assignment")
   if (/\.\s*$/.test(beforeCursor)) patterns.push("method-call")
 
   return patterns
-}
-
-function getLastNonEmptyLine(lines: string[], currentLine: number): string {
-  for (let i = currentLine - 1; i >= 0; i--) {
-    const line = lines[i]
-    if (line.trim() !== "") return line
-  }
-  return ""
 }

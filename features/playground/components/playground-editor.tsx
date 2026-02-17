@@ -3,7 +3,7 @@
 import { useRef, useEffect, useCallback } from "react"
 import Editor, { type Monaco } from "@monaco-editor/react"
 import { configureMonaco, defaultEditorOptions, getEditorLanguage } from "@/features/playground/libs/editor-config"
-import type { TemplateFile } from "@/features/playground/libs/path-to-json"
+import type { TemplateFile, TemplateItem } from "@/features/playground/libs/path-to-json"
 
 interface PlaygroundEditorProps {
   activeFile: TemplateFile | undefined
@@ -15,6 +15,9 @@ interface PlaygroundEditorProps {
   onAcceptSuggestion: (editor: any, monaco: any) => void
   onRejectSuggestion: (editor: any) => void
   onTriggerSuggestion: (type: string, editor: any) => void
+  templateData: TemplateItem
+  onSave: (file: TemplateItem, content: string) => Promise<void>
+  onSaveAll?: () => Promise<void>
 }
 
 export const PlaygroundEditor = ({
@@ -27,6 +30,9 @@ export const PlaygroundEditor = ({
   onAcceptSuggestion,
   onRejectSuggestion,
   onTriggerSuggestion,
+  templateData,
+  onSave,
+  onSaveAll,
 }: PlaygroundEditorProps) => {
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<Monaco | null>(null)
@@ -39,7 +45,6 @@ export const PlaygroundEditor = ({
   const isAcceptingSuggestionRef = useRef(false)
   const suggestionAcceptedRef = useRef(false)
   const suggestionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const tabCommandRef = useRef<any>(null)
 
   // Generate unique ID for each suggestion
   const generateSuggestionId = () => `suggestion-${Date.now()}-${Math.random()}`
@@ -343,12 +348,24 @@ export const PlaygroundEditor = ({
       onTriggerSuggestion("completion", editor)
     })
 
-    // CRITICAL: Override Tab key with high priority and prevent default Monaco behavior
-    if (tabCommandRef.current) {
-      tabCommandRef.current.dispose()
-    }
+    // Save current file (Ctrl+S / Cmd+S)
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+      console.log("Ctrl/Cmd+S pressed, saving current file")
+      if (activeFile && onSave) {
+        onSave(activeFile, content)
+      }
+    })
 
-    tabCommandRef.current = editor.addCommand(
+    // Save all files (Ctrl+Shift+S / Cmd+Shift+S)
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyS, () => {
+      console.log("Ctrl/Cmd+Shift+S pressed, saving all files")
+      if (onSaveAll) {
+        onSaveAll()
+      }
+    })
+
+    // CRITICAL: Override Tab key with high priority and prevent default Monaco behavior
+    editor.addCommand(
       monaco.KeyCode.Tab,
       () => {
         console.log("TAB PRESSED", {
@@ -510,10 +527,6 @@ export const PlaygroundEditor = ({
       if (inlineCompletionProviderRef.current) {
         inlineCompletionProviderRef.current.dispose()
         inlineCompletionProviderRef.current = null
-      }
-      if (tabCommandRef.current) {
-        tabCommandRef.current.dispose()
-        tabCommandRef.current = null
       }
     }
   }, [])

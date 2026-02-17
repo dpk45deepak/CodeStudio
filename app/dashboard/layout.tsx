@@ -3,6 +3,16 @@ import { DashboardSidebar } from "@/features/dashboard/dashboard-sidebar"
 import { getAllPlaygroundForUser } from "@/features/playground/actions"
 import type React from "react"
 
+type PlaygroundItem = {
+  id: string;
+  title: string;
+  template: string;
+  Starmark?: {
+    isMarked: boolean;
+  }[];
+};
+
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -20,14 +30,14 @@ export default async function DashboardLayout({
     ANGULAR: "Terminal",
   }
 
-  const formattedPlaygroundData =
-    playgroundData?.map((item: any) => ({
-      id: item.id,
-      name: item.title,
-      starred: item.Starmark?.[0]?.isMarked || false,
-      // Pass the icon name as a string
-      icon: technologyIconMap[item.template] || "Code2", // Default to "Code2" if template not found
-    })) || []
+const formattedPlaygroundData =
+  playgroundData?.map((item: PlaygroundItem) => ({
+    id: item.id,
+    name: item.title,
+    starred: item.Starmark?.[0]?.isMarked || false,
+    icon: technologyIconMap[item.template] || "Code2",
+  })) || [];
+
 
   return (
     <SidebarProvider>

@@ -8,7 +8,29 @@ import { PlaygroundEditor } from "./playground-editor"
 import { PlaygroundHeader } from "./playground-header"
 
 export function PlaygroundLayout() {
-  const { error, loadingStep, templateData, fetchPlaygroundData } = usePlayground()
+  const { 
+    error, 
+    loadingStep, 
+    templateData, 
+    fetchPlaygroundData,
+    activeFileId,
+    openFiles,
+    handleSave,
+    handleSaveAll
+  } = usePlayground()
+
+  // Find the active file
+  const activeFile = openFiles.find(file => file.id === activeFileId)
+  
+  // Mock props for now - these should come from the actual context implementation
+  const mockProps = {
+    suggestion: null,
+    suggestionLoading: false,
+    suggestionPosition: null,
+    onAcceptSuggestion: () => {},
+    onRejectSuggestion: () => {},
+    onTriggerSuggestion: () => {},
+  }
 
   if (error) {
     return (
@@ -56,7 +78,30 @@ export function PlaygroundLayout() {
   return (
     <div className="h-screen flex flex-col">
       <PlaygroundHeader />
-      <PlaygroundEditor />
+      <PlaygroundEditor
+        activeFile={activeFile}
+        content={activeFile?.content || ""}
+        onContentChange={(value) => {
+          // This should update the file content in context
+          console.log("Content changed:", value)
+        }}
+        suggestion={mockProps.suggestion}
+        suggestionLoading={mockProps.suggestionLoading}
+        suggestionPosition={mockProps.suggestionPosition}
+        onAcceptSuggestion={mockProps.onAcceptSuggestion}
+        onRejectSuggestion={mockProps.onRejectSuggestion}
+        onTriggerSuggestion={mockProps.onTriggerSuggestion}
+        templateData={templateData}
+        onSave={async (file, content) => {
+          // This should save the file
+          if ('filename' in file) {
+            console.log("Saving file:", file.filename)
+          } else {
+            console.log("Saving folder:", file.folderName)
+          }
+        }}
+        onSaveAll={handleSaveAll}
+      />
     </div>
   )
 }

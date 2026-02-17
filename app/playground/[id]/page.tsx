@@ -5,7 +5,7 @@ import { useState, useCallback } from "react";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { TemplateFileTree } from "@/features/playground/components/playground-explorer";
-import type { TemplateFile } from "@/features/playground/libs/path-to-json";
+import type { TemplateFile, TemplateItem } from "@/features/playground/libs/path-to-json";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -45,7 +45,6 @@ import { useFileExplorer } from "@/features/playground/hooks/useFileExplorer";
 import { usePlayground } from "@/features/playground/hooks/usePlayground";
 import { useAISuggestions } from "@/features/playground/hooks/useAISuggestion";
 import { useWebContainer } from "@/features/webcontainers/hooks/useWebContainer";
-import { SaveUpdatedCode } from "@/features/playground/actions";
 import { TemplateFolder } from "@/features/playground/types";
 import { findFilePath } from "@/features/playground/libs";
 import { ConfirmationDialog } from "@/features/playground/components/dialogs/conformation-dialog";
@@ -73,7 +72,6 @@ const MainPlaygroundPage: React.FC = () => {
     closeAllFiles,
     openFile,
     closeFile,
-    editorContent,
     updateFileContent,
     handleAddFile,
     handleAddFolder,
@@ -94,7 +92,7 @@ const MainPlaygroundPage: React.FC = () => {
     error: containerError,
     instance,
     writeFileSync,
-    // @ts-ignore
+    // @ts-expect-error - WebContainer instance type is not fully typed
   } = useWebContainer({ templateData });
 
   const lastSyncedContent = useRef<Map<string, string>>(new Map());
@@ -209,7 +207,7 @@ const MainPlaygroundPage: React.FC = () => {
         const updatedTemplateData = JSON.parse(
           JSON.stringify(latestTemplateData)
         );
-        const updateFileContent = (items: any[]) =>
+        const updateFileContent = (items: (TemplateFile | TemplateFolder)[]): (TemplateFile | TemplateFolder)[] =>
           items.map((item) => {
             if ("folderName" in item) {
               return { ...item, items: updateFileContent(item.items) };
@@ -235,8 +233,8 @@ const MainPlaygroundPage: React.FC = () => {
         }
 
         // Use saveTemplateData to persist changes
-        const newTemplateData = await saveTemplateData(updatedTemplateData);
-        setTemplateData(newTemplateData || updatedTemplateData);
+        await saveTemplateData(updatedTemplateData);
+        setTemplateData(updatedTemplateData);
 
         // Update open files
         const updatedOpenFiles = openFiles.map((f) =>
@@ -273,6 +271,26 @@ const MainPlaygroundPage: React.FC = () => {
     ]
   );
 
+  // Wrapper function to match PlaygroundEditor save signature
+  const handleSaveForEditor = useCallback(
+    async (file: TemplateItem) => {
+      if (!('filename' in file) || !('fileExtension' in file)) {
+        toast.error('Invalid file type for saving')
+        return
+      }
+
+      // Find the corresponding open file
+      const openFile = openFiles.find(
+        (f) => f.filename === file.filename && f.fileExtension === file.fileExtension
+      )
+      
+      if (openFile) {
+        await handleSave(openFile.id)
+      }
+    },
+    [handleSave, openFiles]
+  )
+
   const handleSaveAll = async () => {
     const unsavedFiles = openFiles.filter((f) => f.hasUnsavedChanges);
 
@@ -284,7 +302,7 @@ const MainPlaygroundPage: React.FC = () => {
     try {
       await Promise.all(unsavedFiles.map((f) => handleSave(f.id)));
       toast.success(`Saved ${unsavedFiles.length} file(s)`);
-    } catch (error) {
+    } catch {
       toast.error("Failed to save some files");
     }
   };
@@ -525,6 +543,9 @@ const MainPlaygroundPage: React.FC = () => {
                         onTriggerSuggestion={(type, editor) =>
                           aiSuggestions.fetchSuggestion(type, editor)
                         }
+                        templateData={templateData!}
+                        onSave={handleSaveForEditor}
+                        onSaveAll={handleSaveAll}
                       />
                     </ResizablePanel>
 

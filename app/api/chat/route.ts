@@ -141,16 +141,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Message is required and must be a string" }, { status: 400 })
     }
 
-    const validHistory = Array.isArray(history)
-      ? history.filter(
-          (msg: any) =>
-            msg &&
-            typeof msg === "object" &&
-            typeof msg.role === "string" &&
-            typeof msg.content === "string" &&
-            ["user", "assistant"].includes(msg.role),
-        )
-      : []
+   const validHistory: ChatMessage[] = Array.isArray(history)
+  ? history.filter(
+      (msg: unknown): msg is ChatMessage =>
+        typeof msg === "object" &&
+        msg !== null &&
+        "role" in msg &&
+        "content" in msg &&
+        typeof (msg as ChatMessage).role === "string" &&
+        typeof (msg as ChatMessage).content === "string" &&
+        ["user", "assistant"].includes((msg as ChatMessage).role)
+    )
+  : [];
+
 
     const recentHistory = validHistory.slice(-10)
     const messages: ChatMessage[] = [...recentHistory, { role: "user", content: message }]
