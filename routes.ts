@@ -5,9 +5,6 @@
  */
 
 export const publicRoutes: string[] = [
-    "/",  // Add root as public to prevent redirect loops
-    "/docs",
-    "/about-us",
     "/auth/sign-in",
     "/auth/sign-up",
 ]
@@ -19,6 +16,9 @@ export const publicRoutes: string[] = [
  */
 
 export const protectedRoutes: string[] = [
+    "/",
+    "/docs",
+    "/about-us",
     "/dashboard",
     "/playground",
 ]
