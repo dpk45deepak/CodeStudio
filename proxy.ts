@@ -1,17 +1,10 @@
-// to provide a nodejs runtime for nextauth service
-export const runtime = "nodejs";
-
-
-import NextAuth from "next-auth";
+import { auth } from "@/auth";
 import {
   DEFAULT_LOGIN_REDIRECT,
   apiAuthPrefix,
   publicRoutes,
   authRoutes,
 } from "@/routes";
-import authConfig from "./auth.config";
-
-const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { nextUrl } = req;
@@ -27,8 +20,10 @@ export default auth((req) => {
     nextUrl.pathname.startsWith(route)
   );
 
+  // Allow auth API routes
   if (isApiAuthRoute) return null;
 
+  // If visiting auth pages (login/signup)
   if (isAuthRoute) {
     if (isLoggedIn) {
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
@@ -36,6 +31,7 @@ export default auth((req) => {
     return null;
   }
 
+  // Protect private routes
   if (!isLoggedIn && !isPublicRoute) {
     return Response.redirect(new URL("/auth/sign-in", nextUrl));
   }

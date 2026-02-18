@@ -5,9 +5,7 @@ import authConfig from "./auth.config"
 import { db } from "./lib/db";
 import { getAccountByUserId, getUserById } from "@/features/auth/actions";
 
- 
 
- 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
     /**
@@ -28,7 +26,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             email: user.email!,
             name: user.name,
             image: user.image,
-           
+
             accounts: {
               // @ts-ignore
               create: {
