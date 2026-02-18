@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+import { auth } from "@/auth-edge";
+
 import {
   DEFAULT_LOGIN_REDIRECT,
   apiAuthPrefix,
@@ -20,10 +21,8 @@ export default auth((req) => {
     nextUrl.pathname.startsWith(route)
   );
 
-  // Allow auth API routes
   if (isApiAuthRoute) return null;
 
-  // If visiting auth pages (login/signup)
   if (isAuthRoute) {
     if (isLoggedIn) {
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
@@ -31,7 +30,6 @@ export default auth((req) => {
     return null;
   }
 
-  // Protect private routes
   if (!isLoggedIn && !isPublicRoute) {
     return Response.redirect(new URL("/auth/sign-in", nextUrl));
   }
@@ -40,7 +38,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
