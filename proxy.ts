@@ -1,3 +1,7 @@
+// to provide a nodejs runtime for nextauth service
+export const runtime = "nodejs";
+
+
 import NextAuth from "next-auth";
 import {
   DEFAULT_LOGIN_REDIRECT,
