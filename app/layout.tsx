@@ -60,6 +60,7 @@ export const metadata: Metadata = {
     description: "Build together. Code smarter.",
     images: ["/og.png"],
   },
+  metadataBase: new URL("https://devtgthr.syntax-lab.vercel.app"),
 };
 
 

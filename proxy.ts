@@ -1,5 +1,4 @@
 import NextAuth from "next-auth";
-
 import {
   DEFAULT_LOGIN_REDIRECT,
   apiAuthPrefix,
@@ -8,23 +7,23 @@ import {
 } from "@/routes";
 import authConfig from "./auth.config";
 
-
 const { auth } = NextAuth(authConfig);
 
-// @ts-ignore
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
 
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
 
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+  const isPublicRoute = publicRoutes.some((route) =>
+    nextUrl.pathname.startsWith(route)
+  );
 
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+  const isAuthRoute = authRoutes.some((route) =>
+    nextUrl.pathname.startsWith(route)
+  );
 
-  if (isApiAuthRoute) {
-    return null;
-  }
+  if (isApiAuthRoute) return null;
 
   if (isAuthRoute) {
     if (isLoggedIn) {
@@ -33,14 +32,13 @@ export default auth((req) => {
     return null;
   }
 
-  if(!isLoggedIn && !isPublicRoute){
-    return Response.redirect(new URL("/auth/sign-in" , nextUrl))
+  if (!isLoggedIn && !isPublicRoute) {
+    return Response.redirect(new URL("/auth/sign-in", nextUrl));
   }
 
-  return null
+  return null;
 });
 
 export const config = {
-  // copied from clerk
   matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };
