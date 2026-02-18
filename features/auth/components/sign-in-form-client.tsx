@@ -25,7 +25,7 @@ const SignInFormClient = () => {
   return (
     <Card className="w-full max-w-md bg-gray-900 border-gray-800">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center text-gray-100">
+        <CardTitle className="text-3xl font-semibold text-center bg-linear-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
           Sign In
         </CardTitle>
         <CardDescription className="text-center text-gray-400">

@@ -35,14 +35,14 @@ export default function DocsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white px-6 py-20">
+    <div className="min-h-screen bg-background text-foreground px-6 py-20">
       <div className="max-w-6xl mx-auto">
         {/* HEADER */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-teal-400 to-indigo-400">
+          <h1 className="text-5xl font-extrabold mb-6 bg-clip-text text-transparent bg-linear-to-r from-blue-400 via-teal-400 to-indigo-400">
             SyntaxLab Documentation
           </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Learn how SyntaxLab’s AI‑powered code editor works with your local
             Ollama model to provide intelligent coding assistance and powerful
             Monaco Editor shortcuts.
@@ -56,28 +56,28 @@ export default function DocsPage() {
             return (
               <div
                 key={i}
-                className="p-8 rounded-2xl bg-gray-900 border border-gray-800 hover:border-teal-500/40 transition"
+                className="p-8 rounded-2xl bg-card border border-border hover:border-teal-500/40 transition"
               >
                 <Icon className="w-10 h-10 text-teal-400 mb-5" />
                 <h3 className="text-xl font-semibold mb-3">{sec.title}</h3>
-                <p className="text-gray-400 leading-relaxed">{sec.content}</p>
+                <p className="text-muted-foreground leading-relaxed">{sec.content}</p>
               </div>
             );
           })}
         </div>
 
         {/* SHORTCUT TABLE */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10">
+        <div className="bg-card border border-border rounded-2xl p-10">
           <h2 className="text-3xl font-bold mb-8">Editor Keyboard Shortcuts</h2>
 
           <div className="space-y-4">
             {shortcuts.map((s, i) => (
               <div
                 key={i}
-                className="flex justify-between items-center border-b border-gray-800 pb-4"
+                className="flex justify-between items-center border-b border-border pb-4"
               >
                 <span className="font-mono text-teal-400">{s.key}</span>
-                <span className="text-gray-300">{s.action}</span>
+                <span className="text-foreground">{s.action}</span>
               </div>
             ))}
           </div>

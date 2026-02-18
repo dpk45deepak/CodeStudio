@@ -5,21 +5,21 @@ import FloatingIcons from "@/components/Animation/FloatingIcons";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-start px-6 pt-20 overflow-hidden bg-gray-950">
+    <div className="relative min-h-screen flex flex-col items-center justify-start px-6 pt-20 overflow-hidden bg-background">
       <FloatingIcons />
 
       {/* HERO CONTENT */}
       <div className="relative z-20 flex flex-col items-center text-center max-w-4xl">
 
         {/* BRAND BADGE */}
-        <div className="flex items-center gap-2 text-sm font-semibold text-teal-300 bg-gray-950 border border-border px-5 py-2 rounded-full backdrop-blur-md shadow-lg">
+        <div className="flex items-center gap-2 text-sm font-semibold text-teal-300 bg-background border border-border px-5 py-2 rounded-full backdrop-blur-md shadow-lg">
           <Sparkles className="w-4 h-4 text-teal-400" />
           DevTgthr • SyntaxLab
         </div>
 
         {/* MAIN HEADING */}
         <h1 className="mt-8 text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.15]">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-teal-400 to-indigo-400">
+          <span className="bg-clip-text text-transparent bg-linear-to-r from-blue-400 via-teal-400 to-indigo-400">
             Code Together.
           </span>
           <br />
@@ -42,7 +42,7 @@ export default function Home() {
         <Link href={"/dashboard"}>
           <Button
             size="lg"
-            className="mt-12 text-lg px-10 py-7 rounded-xl bg-gradient-to-r from-blue-400 via-teal-500 to-teal-600 hover:opacity-90 shadow-xl shadow-blue-500/30 transition-all duration-300 hover:scale-105"
+            className="mt-12 text-lg px-10 py-7 rounded-xl bg-linear-to-r from-blue-400 via-teal-500 to-teal-600 hover:opacity-90 shadow-xl shadow-blue-500/30 transition-all duration-300 hover:scale-105"
           >
             Start Building Now
             <ArrowUpRight className="w-5 h-5 ml-3" />
