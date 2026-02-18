@@ -6,6 +6,7 @@
 
 export const publicRoutes: string[] = [
     "/auth/sign-in",
+    "/auth/sign-up",
 ]
 
 /**
@@ -25,8 +26,8 @@ export const protectedRoutes: string[] = [
  */
 
 export const authRoutes: string[] = [
-    "/auth/sign-in",   // Added leading slash
-   
+    "/auth/sign-in",
+    "/auth/sign-up",
 ]
 
 /**
