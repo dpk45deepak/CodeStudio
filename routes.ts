@@ -2,9 +2,10 @@
  * An Array of routes that are accessible to the public
  * These routes do not require authentication
  * @type {string[]}
- */
+*/
 
 export const publicRoutes: string[] = [
+    "/",
     "/auth/sign-in",
     "/auth/sign-up",
 ]
@@ -16,7 +17,6 @@ export const publicRoutes: string[] = [
  */
 
 export const protectedRoutes: string[] = [
-    "/",
     "/docs",
     "/about-us",
     "/dashboard",
