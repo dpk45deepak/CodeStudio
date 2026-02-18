@@ -2,20 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Chrome, Github } from "lucide-react";
-import { signIn } from "@/auth";
+import { handleGoogleSignIn, handleGithubSignIn } from "./actions";
 import Link from "next/link";
 
 export default function SignUpPage() {
-  const handleGoogleSignIn = async () => {
-    "use server";
-    await signIn("google");
-  };
-
-  const handleGithubSignIn = async () => {
-    "use server";
-    await signIn("github");
-  };
-
   return (
     <div className="relative min-h-screen flex items-center justify-center px-6 bg-background">
       <div className="w-full max-w-md">
