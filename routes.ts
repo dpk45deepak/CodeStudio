@@ -5,7 +5,7 @@
  */
 
 export const publicRoutes: string[] = [
-   
+    "/auth/sign-in",
 ]
 
 /**
@@ -16,7 +16,6 @@ export const publicRoutes: string[] = [
 
 export const protectedRoutes: string[] = [
     "/",
-    
 ]
 
 /**
