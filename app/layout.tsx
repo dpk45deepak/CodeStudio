@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-providers";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import { Toaster } from "@/components/ui/sonner";
+import { RepoSelectorProvider } from "@/features/github/components/repo-selector-provider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -80,17 +81,19 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning className="h-full">
       <body className={`${poppins.className} antialiased min-h-full`}>
         <SessionProvider session={session}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <div className="flex flex-col min-h-screen">
-              <Toaster richColors position="top-center" />
-              <main className="flex-1">{children}</main>
-            </div>
-          </ThemeProvider>
+          <RepoSelectorProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <div className="flex flex-col min-h-screen">
+                <Toaster richColors position="top-center" />
+                <main className="flex-1">{children}</main>
+              </div>
+            </ThemeProvider>
+          </RepoSelectorProvider>
         </SessionProvider>
       </body>
     </html>

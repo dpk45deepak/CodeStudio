@@ -7,8 +7,12 @@ export default {
         GitHub({
             clientId: process.env.AUTH_GITHUB_ID,
             clientSecret: process.env.AUTH_GITHUB_SECRET,
-            // ⭐ THIS IS THE FIX
             allowDangerousEmailAccountLinking: true,
+            authorization: {
+                params: {
+                    scope: "repo user:email"
+                }
+            }
         }),
         Google({
             clientId: process.env.AUTH_GOOGLE_ID,
