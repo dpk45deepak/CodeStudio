@@ -7,8 +7,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
+import { RepositoryGridSkeleton } from "@/components/ui/loading-state";
 import { GitHubRepository } from "../libs/github-api";
-import { Search, GitBranch, Star, Users } from "lucide-react";
+import { Search, GitBranch, Star, Users, Lock } from "lucide-react";
 
 interface RepoSelectorModalProps {
   isOpen: boolean;
@@ -36,8 +38,12 @@ export default function RepoSelectorModal({
     }
   }, [isOpen, activeTab]);
 
+  // Add skeleton loading on initial load
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
   const fetchMyRepositories = async () => {
     setIsLoading(true);
+    setIsInitialLoading(true);
     try {
       const response = await fetch("/api/github/repositories");
       const data = await response.json();
@@ -48,6 +54,7 @@ export default function RepoSelectorModal({
       console.error("Failed to fetch repositories:", error);
     } finally {
       setIsLoading(false);
+      setIsInitialLoading(false);
     }
   };
 
@@ -95,27 +102,29 @@ export default function RepoSelectorModal({
 
   const RepositoryCard = ({ repo }: { repo: GitHubRepository }) => (
     <Card 
-      className="cursor-pointer hover:bg-gray-50 transition-colors"
+      className="cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] border-0 shadow-sm"
       onClick={() => handleSelectRepo(repo)}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-gray-900">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg font-semibold text-foreground truncate group-hover:text-primary transition-colors">
               {repo.name}
             </CardTitle>
-            <CardDescription className="text-sm text-gray-600 mt-1">
-              {repo.description || "No description"}
+            <CardDescription className="text-sm text-muted-foreground mt-1 line-clamp-2">
+              {repo.description || "No description available"}
             </CardDescription>
           </div>
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-end gap-2 ml-3 shrink-0">
             {repo.private && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs font-medium">
+                <Lock className="w-3 h-3 mr-1" />
                 Private
               </Badge>
             )}
             {repo.language && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs font-medium">
+                <div className="w-2 h-2 rounded-full bg-blue-500 mr-1"></div>
                 {repo.language}
               </Badge>
             )}
@@ -123,18 +132,22 @@ export default function RepoSelectorModal({
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="flex items-center justify-between text-sm text-gray-500">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 hover:text-foreground transition-colors">
               <Star className="w-4 h-4" />
-              <span>{repo.stargazers_count}</span>
+              <span className="font-medium">{repo.stargazers_count}</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 hover:text-foreground transition-colors">
               <GitBranch className="w-4 h-4" />
-              <span>{repo.default_branch}</span>
+              <span className="font-medium">{repo.default_branch}</span>
+            </div>
+            <div className="flex items-center gap-1 hover:text-foreground transition-colors">
+              <Users className="w-4 h-4" />
+              <span className="font-medium">{repo.forks_count}</span>
             </div>
           </div>
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-muted-foreground">
             Updated {new Date(repo.updated_at).toLocaleDateString()}
           </div>
         </div>
@@ -146,25 +159,25 @@ export default function RepoSelectorModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+      <DialogContent className="max-w-4xl h-[80vh] max-h-[80vh] p-0 flex flex-col">
+        <DialogHeader className="p-6 pb-4 border-b">
+          <DialogTitle className="text-xl font-semibold">{title}</DialogTitle>
         </DialogHeader>
         
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col flex-1 overflow-hidden">
           {/* Tabs */}
-          <div className="flex border-b">
+          <div className="flex border-b bg-background">
             <Button
               variant={activeTab === "my-repos" ? "default" : "ghost"}
               onClick={() => setActiveTab("my-repos")}
-              className="rounded-none border-b-2"
+              className="rounded-none border-b-2 px-6 py-3"
             >
               My Repositories
             </Button>
             <Button
               variant={activeTab === "search" ? "default" : "ghost"}
               onClick={() => setActiveTab("search")}
-              className="rounded-none border-b-2"
+              className="rounded-none border-b-2 px-6 py-3"
             >
               Search GitHub
             </Button>
@@ -172,45 +185,61 @@ export default function RepoSelectorModal({
 
           {/* Search Input */}
           {activeTab === "search" && (
-            <div className="p-4 border-b">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div className="p-4 border-b bg-muted/30">
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
-                  placeholder="Search repositories..."
+                  placeholder="Search repositories by name, language, or owner..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-10"
                 />
               </div>
             </div>
           )}
 
           {/* Repository List */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {(isLoading || isSearching) ? (
-              <div className="flex items-center justify-center h-32">
-                <div className="text-sm text-gray-500">Loading...</div>
-              </div>
-            ) : displayedRepos.length === 0 ? (
-              <div className="flex items-center justify-center h-32">
-                <div className="text-sm text-gray-500">
-                  {activeTab === "my-repos" 
-                    ? "No repositories found" 
-                    : "No repositories found for your search"
-                  }
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-4">
+              {isInitialLoading ? (
+                <RepositoryGridSkeleton count={6} />
+              ) : (isLoading || isSearching) ? (
+                <div className="flex items-center justify-center h-32">
+                  <Spinner size="md" text="Loading repositories..." />
                 </div>
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                {displayedRepos.map((repo) => (
-                  <RepositoryCard key={repo.id} repo={repo} />
-                ))}
-              </div>
-            )}
+              ) : displayedRepos.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-32 text-center">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                    <GitBranch className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {activeTab === "my-repos" 
+                      ? "No repositories found" 
+                      : "No repositories found for your search"
+                    }
+                  </div>
+                  {activeTab === "search" && (
+                    <Button 
+                      variant="link" 
+                      onClick={() => setActiveTab("my-repos")}
+                      className="mt-2 text-sm"
+                    >
+                      Browse your repositories instead
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                  {displayedRepos.map((repo) => (
+                    <RepositoryCard key={repo.id} repo={repo} />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="p-4 pt-4 border-t bg-background">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
