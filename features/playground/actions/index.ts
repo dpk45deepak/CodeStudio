@@ -182,14 +182,18 @@ export const duplicateProjectById = async (id: string) => {
                 description: originalPlayground.description,
                 template: originalPlayground.template,
                 userId: originalPlayground.userId,
-                templateFiles: {
-                  // @ts-ignore
-                    create: originalPlayground.templateFiles.map((file) => ({
-                        content: file.content,
-                    })),
-                },
             },
         });
+
+        // Create template files for duplicated playground
+        await Promise.all(originalPlayground.templateFiles.map(async (file) => {
+            await db.templateFile.create({
+                data: {
+                    playgroundId: duplicatedPlayground.id,
+                    content: file.content as any,
+                },
+            });
+        }));
 
         // Revalidate the dashboard path to reflect the changes
         revalidatePath("/dashboard");

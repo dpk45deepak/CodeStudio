@@ -78,9 +78,10 @@ export class GitHubAPIClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const headers = {
-      'Authorization': `token ${this.accessToken}`,
+      'Authorization': `Bearer ${this.accessToken}`,
       'Accept': 'application/vnd.github.v3+json',
       'Content-Type': 'application/json',
+      'User-Agent': 'SyntaxLab-App',
       ...options.headers,
     };
 

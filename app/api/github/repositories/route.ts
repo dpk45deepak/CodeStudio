@@ -6,14 +6,14 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized - No session' }, { status: 401 });
     }
 
     // Get GitHub access token from session
     const accessToken = (session as any)?.accessToken;
     if (!accessToken) {
       return NextResponse.json(
-        { error: 'GitHub access token not found' },
+        { error: 'GitHub access token not found - Please authenticate with GitHub first' },
         { status: 401 }
       );
     }
@@ -27,6 +27,23 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('GitHub repositories error:', error);
+    
+    // Handle specific GitHub API errors
+    if (error instanceof Error) {
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        return NextResponse.json(
+          { error: 'GitHub token expired or invalid - Please re-authenticate with GitHub' },
+          { status: 401 }
+        );
+      }
+      if (error.message.includes('403') || error.message.includes('rate limit')) {
+        return NextResponse.json(
+          { error: 'GitHub API rate limit exceeded - Please try again later' },
+          { status: 429 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { error: 'Failed to fetch repositories' },
       { status: 500 }
@@ -38,7 +55,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized - No session' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -48,7 +65,7 @@ export async function POST(request: NextRequest) {
     const accessToken = (session as any)?.accessToken;
     if (!accessToken) {
       return NextResponse.json(
-        { error: 'GitHub access token not found' },
+        { error: 'GitHub access token not found - Please authenticate with GitHub first' },
         { status: 401 }
       );
     }
@@ -63,6 +80,23 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('GitHub search error:', error);
+    
+    // Handle specific GitHub API errors
+    if (error instanceof Error) {
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        return NextResponse.json(
+          { error: 'GitHub token expired or invalid - Please re-authenticate with GitHub' },
+          { status: 401 }
+        );
+      }
+      if (error.message.includes('403') || error.message.includes('rate limit')) {
+        return NextResponse.json(
+          { error: 'GitHub API rate limit exceeded - Please try again later' },
+          { status: 429 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { error: 'Failed to search repositories' },
       { status: 500 }
