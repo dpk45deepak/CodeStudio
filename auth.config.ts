@@ -6,11 +6,14 @@ export default {
     providers: [
         GitHub({
             clientId: process.env.AUTH_GITHUB_ID,
-            clientSecret: process.env.AUTH_GITHUB_SECRET
+            clientSecret: process.env.AUTH_GITHUB_SECRET,
+            // ⭐ THIS IS THE FIX
+            allowDangerousEmailAccountLinking: true,
         }),
         Google({
             clientId: process.env.AUTH_GOOGLE_ID,
             clientSecret: process.env.AUTH_GOOGLE_SECRET,
+            allowDangerousEmailAccountLinking: true,
         })
     ],
     trustHost: true,
