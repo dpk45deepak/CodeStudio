@@ -1,32 +1,16 @@
-
-import  {Header}  from "@/features/home/header";
 import { cn } from "@/lib/utils";
-import type { Metadata } from "next";
-import { auth } from "@/auth-edge";
 // import { usePathname } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: {
-    template: "%s | DevTgthr",
-    default: "DevTgthr — SyntaxLab",
-  },
-};
 
 export default async function HomeLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const session = await auth();
     // const pathname = usePathname();
 
     return (
         <>
-        {session ? (
-            <Header />
-        ) : (
-            null
-        )}
 
             <div
                 className={cn(
