@@ -18,7 +18,7 @@ export default function AgentsPage() {
     const agents = [
         {
             name: "The Architect",
-            model: "llama3:8b",
+            model: "deepseek-coder",
             icon: Layers,
             color: "blue",
             bg: "bg-blue-500/10 border-blue-500/20 text-blue-400",
@@ -34,7 +34,7 @@ export default function AgentsPage() {
         },
         {
             name: "The Refactorer",
-            model: "qwen2.5-coder",
+            model: "deepseek-coder",
             icon: Wrench,
             color: "purple",
             bg: "bg-purple-500/10 border-purple-500/20 text-purple-400",
@@ -42,7 +42,7 @@ export default function AgentsPage() {
         },
         {
             name: "The Sentinel",
-            model: "phi3:mini",
+            model: "deepseek-coder",
             icon: ShieldAlert,
             color: "cyan",
             bg: "bg-cyan-500/10 border-cyan-500/20 text-cyan-400",

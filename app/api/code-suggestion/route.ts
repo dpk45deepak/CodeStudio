@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { DEFAULT_OLLAMA_MODEL, OLLAMA_BASE_URL } from "@/lib/ai/agents"
 
 interface CodeSuggestionRequest {
   fileContent: string
@@ -137,12 +138,11 @@ Generate suggestion:`
 async function generateSuggestion(prompt: string): Promise<string> {
   try {
     // Replace this with your actual AI service call
-    const response = await fetch("http://localhost:11434/api/generate", {
+    const response = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        // model: "codellama:latest",
-        model: "phi3:mini",
+        model: DEFAULT_OLLAMA_MODEL,
         prompt,
         stream: false,
         options: {
