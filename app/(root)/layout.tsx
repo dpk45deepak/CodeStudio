@@ -1,5 +1,4 @@
 
-import  {Footer}  from "@/features/home/footer";
 import  {Header}  from "@/features/home/header";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
@@ -38,14 +37,13 @@ export default async function HomeLayout({
             />
 
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center -z-10">
-                <div className="w-[700px] h-[700px] bg-linear-to-r from-blue-500/20 via-teal-400/20 to-indigo-500/20 blur-[140px] rounded-full" />
+                <div className="w-175 h-175 bg-linear-to-r from-blue-500/20 via-teal-400/20 to-indigo-500/20 blur-[140px] rounded-full" />
             </div>
 
             <main className="relative z-10 w-full min-h-screen bg-gray-950">
                 {children}
             </main>
 
-            <Footer />
         </>
     );
 }
