@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { GitOperations } from '@/features/github/libs/git-operations';
 import { db } from '@/lib/db';
 import { readTemplateStructureFromJson } from '@/features/playground/libs/path-to-json';
+import { getGithubAccessToken } from '@/lib/github-auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get GitHub access token from session
-    const accessToken = (session as any)?.accessToken;
+    const accessToken = await getGithubAccessToken(session.user.id);
     if (!accessToken) {
       return NextResponse.json(
         { error: 'GitHub access token not found' },

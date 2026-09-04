@@ -13,13 +13,14 @@ export default auth((req: any) => {
 
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
 
-  const isPublicRoute = publicRoutes.some((route) =>
-    nextUrl.pathname.startsWith(route)
-  );
+  const matchesRoute = (route: string) =>
+    route === "/"
+      ? nextUrl.pathname === "/"
+      : nextUrl.pathname === route || nextUrl.pathname.startsWith(`${route}/`);
 
-  const isAuthRoute = authRoutes.some((route) =>
-    nextUrl.pathname.startsWith(route)
-  );
+  const isPublicRoute = publicRoutes.some(matchesRoute);
+
+  const isAuthRoute = authRoutes.some(matchesRoute);
 
   if (isApiAuthRoute) return null;
 

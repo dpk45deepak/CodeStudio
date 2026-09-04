@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { GitHubAPIClient } from '@/features/github/libs/github-api';
+import { getGithubAccessToken } from '@/lib/github-auth';
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get GitHub access token from session
-    const accessToken = (session as any)?.accessToken;
+    const accessToken = await getGithubAccessToken(session.user.id);
     if (!accessToken) {
       return NextResponse.json(
         { error: 'GitHub access token not found - Please authenticate with GitHub first' },
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
     const { query, perPage = 20 } = body;
 
     // Get GitHub access token from session
-    const accessToken = (session as any)?.accessToken;
+    const accessToken = await getGithubAccessToken(session.user.id);
     if (!accessToken) {
       return NextResponse.json(
         { error: 'GitHub access token not found - Please authenticate with GitHub first' },
