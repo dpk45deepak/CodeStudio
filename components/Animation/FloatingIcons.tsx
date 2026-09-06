@@ -20,7 +20,6 @@ import {
   SiPassport,
   SiJsonwebtokens,
   SiNginx,
-  SiAwsamplify,
   SiFirebase,
   SiTailwindcss,
   SiRedux,
@@ -49,7 +48,8 @@ import {
   FaJava,
   FaPython,
   FaRust,
-  FaDocker
+  FaDocker,
+  FaAws
 } from 'react-icons/fa';
 
 import { 
@@ -104,7 +104,7 @@ const NODE_ICONS: IconItem[] = [
   { name: 'Terraform', icon: SiTerraform, category: 'devops' },
   
   // Cloud Services
-  { name: 'AWS', icon: SiAwsamplify, category: 'devops' },
+  { name: 'AWS', icon: FaAws, category: 'devops' },
   { name: 'Firebase', icon: SiFirebase, category: 'devops' },
   
   // Message Queues
