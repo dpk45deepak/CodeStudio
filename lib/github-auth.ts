@@ -1,6 +1,10 @@
 import { db } from "@/lib/db";
 
-export async function getGithubAccessToken(userId: string) {
+export async function getGithubAccessToken(userId: string | undefined) {
+  if (!userId) {
+    return null;
+  }
+
   const account = await db.account.findFirst({
     where: {
       userId,
