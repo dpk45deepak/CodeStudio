@@ -15,7 +15,9 @@ interface WebContainerPreviewProps {
   error: string | null;
   instance: WebContainer | null;
   writeFileSync: (path: string, content: string) => Promise<void>;
+  showTerminal?: boolean;
   forceResetup?: boolean; // Optional prop to force re-setup
+  reloadKey?: number;
 }
 
 const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
@@ -25,7 +27,9 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
   isLoading,
   serverUrl,
   writeFileSync,
+  showTerminal = false,
   forceResetup = false,
+  reloadKey = 0,
 }) => {
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [loadingState, setLoadingState] = useState({
@@ -181,8 +185,10 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
           terminalRef.current.writeToTerminal("🚀 Starting development server...\r\n");
         }
         
-        const startProcess = await instance.spawn("npm", ["run", "start"]);
-
+        const packageJson = JSON.parse(
+          await instance.fs.readFile("package.json", "utf8"),
+        ) as { scripts?: Record<string, string> };
+        const startScript = packageJson.scripts?.dev ? "dev" : "start";
         // Listen for server ready event
         instance.on("server-ready", (port: number, url: string) => {
           console.log(`Server ready on port ${port} at ${url}`);
@@ -198,6 +204,8 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
           setIsSetupComplete(true);
           setIsSetupInProgress(false);
         });
+
+        const startProcess = await instance.spawn("npm", ["run", startScript]);
 
         // Handle start process output - stream to terminal
         startProcess.output.pipeTo(
@@ -326,36 +334,39 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
             </div>
           </div>
 
-          {/* Terminal */}
-          <div className="flex-1 p-4">
-            <TerminalComponent 
-              ref={terminalRef}
-              webContainerInstance={instance}
-              theme="dark"
-              className="h-full"
-            />
-          </div>
+          {showTerminal && (
+            <div className="flex-1 p-4">
+              <TerminalComponent
+                ref={terminalRef}
+                webContainerInstance={instance}
+                theme="dark"
+                className="h-full"
+              />
+            </div>
+          )}
         </div>
       ) : (
         <div className="h-full flex flex-col">
           {/* Preview */}
           <div className="flex-1">
             <iframe
+              key={reloadKey}
               src={previewUrl}
               className="w-full h-full border-none"
               title="WebContainer Preview"
             />
           </div>
           
-          {/* Terminal at bottom when preview is ready */}
-          <div className="h-64 border-t">
-            <TerminalComponent 
-              ref={terminalRef}
-              webContainerInstance={instance}
-              theme="dark"
-              className="h-full"
-            />
-          </div>
+          {showTerminal && (
+            <div className="h-64 border-t">
+              <TerminalComponent
+                ref={terminalRef}
+                webContainerInstance={instance}
+                theme="dark"
+                className="h-full"
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

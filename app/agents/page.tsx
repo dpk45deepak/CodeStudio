@@ -141,10 +141,10 @@ export default function AgentsPage() {
                     <div className="flex-1 space-y-4">
                         <h3 className="text-xl font-bold text-slate-100">Powered by your Hardware</h3>
                         <p className="text-slate-400 leading-relaxed">
-                            To utilize the multi-agent system, ensure you have Ollama installed and running on your local machine. CodeStudio will automatically detect available models and route tasks accordingly.
+                            To use the multi-agent system, configure your Ollama Cloud URL, API key, and model in Settings. CodeStudio will route tasks through your saved cloud configuration.
                         </p>
                         <div className="flex items-center gap-2 text-sm text-slate-500 pt-2 font-mono">
-                            <span className="text-blue-400">$</span> ollama serve
+                            <span className="text-blue-400">$</span> Configure Ollama Cloud
                         </div>
                     </div>
                     

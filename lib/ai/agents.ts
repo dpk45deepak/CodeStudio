@@ -1,5 +1,6 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ChatOllama } from "@langchain/ollama";
+import { getOllamaConfig, type OllamaRuntimeConfig } from "@/lib/ai/ollama-config";
 
 export type AgentKey = "architect" | "debugger" | "refactorer" | "sentinel";
 export type AgentMode =
@@ -32,14 +33,13 @@ export interface AgentRunResponse {
   model: string;
 }
 
-export const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://localhost:11434";
-export const DEFAULT_OLLAMA_MODEL = "deepseek-coder";
+export const OLLAMA_CLOUD_BASE_URL = "https://ollama.com";
 
 export const AGENT_CATALOG: Record<AgentKey, AgentDefinition> = {
   architect: {
     key: "architect",
     name: "The Architect",
-    model: DEFAULT_OLLAMA_MODEL,
+    model: "",
     description:
       "Designs robust systems, scaffolds new features, and structures large codebases with maintainability in mind.",
     systemPrompt:
@@ -48,7 +48,7 @@ export const AGENT_CATALOG: Record<AgentKey, AgentDefinition> = {
   debugger: {
     key: "debugger",
     name: "The Debugger",
-    model: DEFAULT_OLLAMA_MODEL,
+    model: "",
     description:
       "Diagnoses runtime failures, stack traces, and logic bugs and recommends exact fixes with confidence.",
     systemPrompt:
@@ -57,7 +57,7 @@ export const AGENT_CATALOG: Record<AgentKey, AgentDefinition> = {
   refactorer: {
     key: "refactorer",
     name: "The Refactorer",
-    model: DEFAULT_OLLAMA_MODEL,
+    model: "",
     description:
       "Improves readability, removes duplication, and tunes code for performance without changing behavior.",
     systemPrompt:
@@ -66,7 +66,7 @@ export const AGENT_CATALOG: Record<AgentKey, AgentDefinition> = {
   sentinel: {
     key: "sentinel",
     name: "The Sentinel",
-    model: DEFAULT_OLLAMA_MODEL,
+    model: "",
     description:
       "Scans for security risks, missing guards, and edge-case issues before release.",
     systemPrompt:
@@ -74,9 +74,12 @@ export const AGENT_CATALOG: Record<AgentKey, AgentDefinition> = {
   },
 };
 
-export async function listAvailableModels(): Promise<string[]> {
+export async function listAvailableModels(config: OllamaRuntimeConfig): Promise<string[]> {
   try {
-    const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`, { cache: "no-store" });
+    const response = await fetch(`${config.apiUrl}/api/tags`, {
+      cache: "no-store",
+      headers: { Authorization: `Bearer ${config.apiKey}` },
+    });
 
     if (!response.ok) {
       return [];
@@ -88,11 +91,6 @@ export async function listAvailableModels(): Promise<string[]> {
     console.warn("Unable to reach Ollama for model discovery:", error);
     return [];
   }
-}
-
-export async function ensureModelAvailable(modelName: string): Promise<boolean> {
-  const availableModels = await listAvailableModels();
-  return availableModels.some((model) => model.toLowerCase() === modelName.toLowerCase() || model.toLowerCase().startsWith(`${modelName.toLowerCase()}:`));
 }
 
 function normalizeAgentMode(mode?: AgentMode): AgentKey {
@@ -154,10 +152,11 @@ function messageContentToString(content: unknown): string {
   return "";
 }
 
-function createModel(modelName: string) {
+function createModel(config: OllamaRuntimeConfig) {
   return new ChatOllama({
-    model: modelName,
-    baseUrl: OLLAMA_BASE_URL,
+    model: config.model,
+    baseUrl: config.apiUrl,
+    headers: { Authorization: `Bearer ${config.apiKey}` },
     temperature: 0.2,
     topP: 0.9,
     numPredict: 1200,
@@ -180,18 +179,11 @@ function buildPrompt(agent: AgentDefinition, message: string, history: Array<{ r
   ].join("\n\n");
 }
 
-export async function runAgentWorkflow({ message, history = [], mode }: AgentRunRequest): Promise<AgentRunResponse> {
+export async function runAgentWorkflow({ message, history = [], mode, userId }: AgentRunRequest & { userId: string }): Promise<AgentRunResponse> {
+  const ollamaConfig = await getOllamaConfig(userId);
   const agentKey = selectAgentByMessage(message, mode);
-  const agent = AGENT_CATALOG[agentKey];
-  const modelIsAvailable = await ensureModelAvailable(agent.model);
-
-  if (!modelIsAvailable) {
-    throw new Error(
-      `Model "${agent.model}" is not available in Ollama. Run: ollama pull ${agent.model} and then retry.`,
-    );
-  }
-
-  const llm = createModel(agent.model);
+  const agent = { ...AGENT_CATALOG[agentKey], model: ollamaConfig.model };
+  const llm = createModel(ollamaConfig);
   const prompt = buildPrompt(agent, message, history);
 
   const response = await llm.invoke([
@@ -209,10 +201,9 @@ export async function runAgentWorkflow({ message, history = [], mode }: AgentRun
 }
 
 export function getAvailableAgents() {
-  return Object.values(AGENT_CATALOG).map(({ key, name, model, description }) => ({
+  return Object.values(AGENT_CATALOG).map(({ key, name, description }) => ({
     key,
     name,
-    model,
     description,
   }));
 }

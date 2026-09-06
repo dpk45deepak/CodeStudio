@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -182,8 +183,8 @@ const CodeSuggestionCard: React.FC<{
   };
 
   return (
-    <div className="border border-zinc-700/50 rounded-lg overflow-hidden bg-zinc-900/30 my-3 group hover:bg-zinc-900/50 transition-colors">
-      <div className="p-3 bg-zinc-800/30">
+    <div className="my-3 overflow-hidden rounded-lg border border-slate-800 bg-slate-900 transition-colors group hover:bg-slate-900">
+      <div className="bg-slate-900 p-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
@@ -322,7 +323,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
   >("chat");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
-  const [showSettings, setShowSettings] = useState(false);
+  // const [showSettings, setShowSettings] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
   const [streamResponse, setStreamResponse] = useState(true);
 
@@ -405,8 +406,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
   };
 
   const detectFileType = (
-    fileName: string,
-    content: string
+    fileName: string
   ): FileAttachment["type"] => {
     // Only allow code files
     const ext = fileName.split(".").pop()?.toLowerCase();
@@ -444,7 +444,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
     mimeType?: string
   ) => {
     const language = detectLanguage(fileName, content);
-    const type = detectFileType(fileName, content);
+    const type = detectFileType(fileName);
     if (type !== "code") return; // Only allow code files
     const newFile: FileAttachment = {
       id: Date.now().toString(),
@@ -665,9 +665,10 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
     return suggestions;
   };
 
-  const getChatModePrompt = (mode: string, content: string, context: any) => {
+  const getChatModePrompt = (mode: string, content: string) => {
     const baseContext = {
       activeFile: activeFileName,
+      activeFileContent: activeFileContent?.substring(0, 2000),
       language: activeFileLanguage,
       cursorPosition,
       attachments: attachments.map((f) => ({
@@ -723,12 +724,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
 
     try {
       // Prepare enhanced context
-      let contextualMessage = getChatModePrompt(chatMode, input.trim(), {
-        activeFile: activeFileName,
-        activeFileContent: activeFileContent?.substring(0, 2000), // Increased context size
-        language: activeFileLanguage,
-        cursorPosition,
-      });
+      let contextualMessage = getChatModePrompt(chatMode, input.trim());
 
       if (attachments.length > 0) {
         contextualMessage += "\n\nAttached files:\n";
@@ -867,14 +863,14 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
       return msg.content.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
-  return (
+  return typeof document === "undefined" ? null : createPortal(
     <TooltipProvider>
       <>
         {/* Backdrop */}
         <div
           className={cn(
-            "fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300",
-            isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+            "fixed inset-0 z-90 bg-slate-950/70 backdrop-blur-sm transition-opacity duration-300",
+            isOpen ? "opacity-100" : "pointer-events-none opacity-0"
           )}
           onClick={onClose}
         />
@@ -882,7 +878,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
         {/* Side Panel */}
         <div
           className={cn(
-            "fixed right-0 top-0 h-full w-full max-w-6xl bg-zinc-950 border-l border-zinc-800 z-50 flex flex-col transition-transform duration-300 ease-out shadow-2xl",
+            "fixed inset-y-0 right-0 z-100 flex h-full w-full max-w-2xl flex-col border-l border-slate-800 bg-slate-900 shadow-2xl transition-transform duration-300 ease-out",
             isOpen ? "translate-x-0" : "translate-x-full"
           )}
           onDrop={handleDrop}
@@ -905,11 +901,11 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
           )}
 
           {/* Enhanced Header */}
-          <div className="shrink-0 border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-sm">
-            <div className="flex items-center justify-between p-6">
+          <div className="shrink-0 border-b border-slate-800 bg-slate-900">
+            <div className="flex items-start justify-between gap-4 p-4 sm:p-6">
               <div className="flex items-center gap-3">
                 <div className="relative w-10 h-10 border rounded-full flex flex-col justify-center items-center">
-                  <Image src={"/logo.svg"} alt="Logo" width={28} height={28} />
+                  <Image src={"./dev.jpg"} alt="Logo" width={28} height={28} />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-zinc-100">
@@ -923,7 +919,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-1 sm:gap-2">
                 {activeFileName && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -931,10 +927,10 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                         variant="ghost"
                         size="sm"
                         onClick={addCurrentFileAsContext}
-                        className="text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
+                        className="text-zinc-400 hover:bg-slate-800 hover:text-zinc-100"
                       >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add Current File
+                        <Plus className="mr-1 h-4 w-4" />
+                        <span className="hidden sm:inline">Add Current File</span>
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>Add current file as context</TooltipContent>
@@ -945,10 +941,10 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
-                  className="text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
+                  className="text-zinc-400 hover:bg-slate-800 hover:text-zinc-100"
                 >
-                  <Paperclip className="h-4 w-4 mr-1" />
-                  Attach
+                  <Paperclip className="mr-1 h-4 w-4" />
+                  <span className="hidden sm:inline">Attach</span>
                 </Button>
 
                 <DropdownMenu>
@@ -956,7 +952,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
+                      className="text-zinc-400 hover:bg-slate-800 hover:text-zinc-100"
                     >
                       <Settings className="h-4 w-4" />
                     </Button>
@@ -989,7 +985,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={onClose}
-                  className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
+                  className="h-8 w-8 p-0 text-zinc-400 hover:bg-slate-800 hover:text-zinc-100"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -999,11 +995,11 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
             {/* Enhanced Controls */}
             <Tabs
               value={chatMode}
-              onValueChange={(value) => setChatMode(value as any)}
-              className="px-6"
+              onValueChange={(value) => setChatMode(value as "chat" | "review" | "fix" | "optimize")}
+              className="px-4 sm:px-6 bg-slate-900 border-b border-slate-800"
             >
-              <div className="flex items-center justify-between mb-4">
-                <TabsList className="grid w-full grid-cols-4 max-w-md">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <TabsList className="grid h-9 w-full max-w-md grid-cols-4">
                   <TabsTrigger value="chat" className="flex items-center gap-1">
                     <MessageSquare className="h-3 w-3" />
                     Chat
@@ -1035,7 +1031,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                       placeholder="Search messages..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-7 h-8 w-40 bg-zinc-800/50 border-zinc-700/50"
+                      className="h-8 w-full border-slate-700 bg-slate-800 pl-7 sm:w-40"
                     />
                   </div>
 
@@ -1075,7 +1071,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
           </div>
 
           {/* Messages Container */}
-          <div className="flex-1 overflow-y-auto bg-zinc-950">
+          <div className="flex-1 overflow-y-auto bg-slate-900">
             <div className="p-6 space-y-6">
               {filteredMessages.length === 0 && !isLoading && (
                 <div className="text-center text-zinc-500 py-16">
@@ -1102,7 +1098,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                       <button
                         key={suggestion}
                         onClick={() => setInput(suggestion)}
-                        className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm text-zinc-300 transition-colors text-left"
+                        className="rounded-lg bg-slate-800 px-3 py-2 text-left text-sm text-zinc-300 transition-colors hover:bg-slate-700"
                       >
                         {suggestion}
                       </button>
@@ -1111,7 +1107,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                 </div>
               )}
 
-              {filteredMessages.map((msg, index) => (
+              {filteredMessages.map((msg) => (
                 <div key={msg.id} className="space-y-4">
                   <div
                     className={cn(
@@ -1129,8 +1125,8 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                       className={cn(
                         "max-w-[85%] rounded-xl shadow-sm",
                         msg.role === "user"
-                          ? "bg-zinc-900/70 text-white p-4 rounded-br-md"
-                          : "bg-zinc-900/80 backdrop-blur-sm text-zinc-100 p-5 rounded-bl-md border border-zinc-800/50"
+                          ? "rounded-br-md bg-slate-900 p-4 text-white"
+                          : "rounded-bl-md border border-slate-800 bg-slate-900 p-5 text-zinc-100"
                       )}
                     >
                       {msg.role === "assistant" && (
@@ -1150,12 +1146,10 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                               children,
                               className,
                               inline: _inline,
-                              ...props
                             }: {
                               children?: React.ReactNode;
                               className?: string;
                               inline?: boolean;
-                              [key: string]: any;
                             }) => (
                               <EnhancedCodeBlock
                                 className={className}
@@ -1230,8 +1224,8 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                     </div>
 
                     {msg.role === "user" && (
-                      <Avatar className="h-9 w-9 border border-zinc-700 bg-zinc-800 shrink-0">
-                        <AvatarFallback className="bg-zinc-700 text-zinc-300">
+                      <Avatar className="h-9 w-9 shrink-0 border border-slate-700 bg-slate-800">
+                        <AvatarFallback className="bg-slate-700 text-zinc-300">
                           <User className="h-5 w-5" />
                         </AvatarFallback>
                       </Avatar>
@@ -1273,7 +1267,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                   <div className="relative w-10 h-10 border rounded-full flex flex-col justify-center items-center">
                     <Brain className="h-5 w-5 text-zinc-400" />
                   </div>
-                  <div className="bg-zinc-900/80 backdrop-blur-sm border border-zinc-800/50 p-5 rounded-xl rounded-bl-md flex items-center gap-3">
+                  <div className="flex items-center gap-3 rounded-xl rounded-bl-md border border-slate-800 bg-slate-900 p-5">
                     <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
                     <span className="text-sm text-zinc-300">
                       {chatMode === "review"
@@ -1293,7 +1287,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
           </div>
           {/* Enhanced File Attachments Preview */}
           {attachments.length > 0 && (
-            <div className="shrink-0 border-t border-zinc-800 bg-zinc-900/50 p-4">
+            <div className="shrink-0 border-t border-slate-800 bg-slate-900 p-4">
               <div className="text-sm font-medium text-zinc-300 mb-3 flex items-center justify-between">
                 <span>Attached Code Files ({attachments.length})</span>
                 <div className="flex items-center gap-2">
@@ -1333,7 +1327,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
           {/* Enhanced Input Form */}
           <form
             onSubmit={handleSendMessage}
-            className="shrink-0 p-4 border-t border-zinc-800 bg-zinc-900/80 backdrop-blur-sm"
+            className="shrink-0 border-t border-slate-800 bg-slate-900 p-4"
           >
             <div className="flex items-end gap-3">
               <div className="flex-1 relative">
@@ -1352,11 +1346,11 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                   onPaste={handlePaste}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                      handleSendMessage(e as any);
+                      handleSendMessage(e as unknown as React.FormEvent);
                     }
                   }}
                   disabled={isLoading}
-                  className="min-h-[44px] max-h-32 bg-zinc-800/50 border-zinc-700/50 text-zinc-100 placeholder-zinc-500 focus:border-blue-500 focus:ring-blue-500/20 resize-none pr-20"
+                  className="min-h-11 max-h-32 resize-none border-slate-700 bg-slate-800 pr-20 text-zinc-100 placeholder-zinc-500 focus:border-blue-500 focus:ring-blue-500/20"
                   rows={1}
                 />
                 <div className="absolute right-3 bottom-3 flex items-center gap-2">
@@ -1369,7 +1363,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                   >
                     <Paperclip className="h-3 w-3" />
                   </Button>
-                  <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-xs text-zinc-500 bg-zinc-800 border border-zinc-700 rounded">
+                  <kbd className="hidden rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-xs text-zinc-500 sm:inline-block">
                     ⌘↵
                   </kbd>
                 </div>
@@ -1410,6 +1404,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
           />
         </div>
       </>
-    </TooltipProvider>
+    </TooltipProvider>,
+    document.body,
   );
 };

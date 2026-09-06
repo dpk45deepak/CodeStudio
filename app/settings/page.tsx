@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Settings, User, Mail, Github, ShieldCheck } from "lucide-react";
+import { OllamaCloudSettings } from "@/features/settings/components/ollama-cloud-settings";
 
 export default async function SettingsPage() {
     const session = await auth();
@@ -34,6 +35,7 @@ export default async function SettingsPage() {
                 </div>
 
                 <div className="space-y-8">
+                    <OllamaCloudSettings />
                     {/* Profile Settings Card */}
                     <div className="p-8 bg-slate-900/50 border border-slate-800 rounded-3xl shadow-xl backdrop-blur-sm relative overflow-hidden">
                         <div className="flex items-center gap-4 mb-8 border-b border-slate-800/50 pb-6">

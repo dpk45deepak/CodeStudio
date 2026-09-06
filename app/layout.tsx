@@ -28,9 +28,9 @@ export const metadata: Metadata = {
     ],
     authors: [{ name: "CodeStudio Team" }],
     icons: {
-        icon: "/favicon.ico",
-        shortcut: "/favicon.ico",
-        apple: "/apple-touch-icon.png",
+        icon: "./dev.jpg",
+        shortcut: "./dev.jpg",
+        apple: "./dev.jpg",
     },
     openGraph: {
         title: "CodeStudio — Next-Generation Collaborative Coding Platform",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
         siteName: "CodeStudio",
         images: [
             {
-                url: "/og.png",
+                url: "./og.png",
                 width: 1200,
                 height: 630,
             },
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "CodeStudio — Next-Generation Collaborative Coding Platform",
         description: "Build together. Code smarter.",
-        images: ["/og.png"],
+        images: ["./og.png"],
     },
     metadataBase: new URL("https://codestudio.eta.vercel.app"),
 };

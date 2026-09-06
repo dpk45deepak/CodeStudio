@@ -238,7 +238,7 @@ export default async function Home() {
                             <div className="flex items-center gap-3 p-3 bg-black/50 rounded-lg border border-slate-800">
                                 <Terminal className="w-4 h-4 text-emerald-500" />
                                 <code className="text-emerald-400">
-                                    ollama run phi3
+                                    Configure Ollama Cloud in Settings
                                 </code>
                             </div>
                             <p className="text-slate-500 text-xs mt-2">
@@ -305,7 +305,7 @@ export default async function Home() {
                             <p className="text-slate-400 max-w-md leading-relaxed">
                                 Spawn specialized AI agents for refactoring,
                                 writing tests, or debugging simultaneously.
-                                Powered entirely by your local Ollama instance
+                                Powered by your Ollama Cloud account
                                 for limitless, free execution.
                             </p>
                         </div>

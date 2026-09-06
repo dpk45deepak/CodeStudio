@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { WebContainer } from '@webcontainer/api';
 import { TemplateFolder } from '@/features/playground/libs/path-to-json';
+import webContainerService from '../service/webContainerService';
 
 interface UseWebContainerProps {
   templateData: TemplateFolder;
@@ -26,7 +27,7 @@ export const useWebContainer = ({ templateData }: UseWebContainerProps): UseWebC
 
     async function initializeWebContainer() {
       try {
-        const webcontainerInstance = await WebContainer.boot();
+        const webcontainerInstance = await webContainerService.getWebContainer();
         
         if (!mounted) return;
         
@@ -45,9 +46,6 @@ export const useWebContainer = ({ templateData }: UseWebContainerProps): UseWebC
 
     return () => {
       mounted = false;
-      if (instance) {
-        instance.teardown();
-      }
     };
   }, []);
 

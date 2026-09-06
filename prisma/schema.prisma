@@ -31,6 +31,7 @@ model User {
   myPlayground StarMark[]
 
   chatMessages ChatMessage[] // New relation for chat messages
+  ollamaConfig OllamaConfig?
 
   staredPlayground Playground[]
   createdAt        DateTime     @default(now())
@@ -112,4 +113,16 @@ model ChatMessage {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model OllamaConfig {
+  id              String   @id @default(cuid()) @map("_id")
+  userId          String   @unique
+  apiUrl          String
+  encryptedApiKey String
+  model           String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Apply to all routes except playground (WebContainer needs different headers)
+        // Apply isolation to routes outside the playground.
         source: '/((?!playground).*)',
         headers: [
           {
@@ -28,16 +28,16 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // WebContainer-compatible headers for playground routes
+        // WebContainer requires cross-origin isolation for SharedArrayBuffer.
         source: '/playground/:path*',
         headers: [
           {
             key: 'Cross-Origin-Opener-Policy',
-            value: 'unsafe-none',
+            value: 'same-origin',
           },
           {
             key: 'Cross-Origin-Embedder-Policy',
-            value: 'unsafe-none',
+            value: 'require-corp',
           },
           {
             key: 'Cross-Origin-Resource-Policy',

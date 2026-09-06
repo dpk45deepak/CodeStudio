@@ -10,8 +10,8 @@ export default function DocsPage() {
         {
             icon: Cpu,
             color: "blue",
-            title: "Local Ollama AI Integration",
-            content: `CodeStudio uses a locally installed Ollama model to provide real-time AI coding assistance without sending your code to external servers. This ensures privacy, faster responses, and offline capability.`,
+            title: "Ollama Cloud AI Integration",
+            content: `CodeStudio uses your saved Ollama Cloud configuration to provide real-time AI coding assistance. Add your Ollama Cloud API URL, API key, and model in Settings before using chat or code suggestions.`,
         },
         {
             icon: Code2,
@@ -23,7 +23,7 @@ export default function DocsPage() {
             icon: BookOpen,
             color: "purple",
             title: "How It Works",
-            content: `The Monaco Editor sends your current file context to the local Ollama API. The model processes it and returns suggestions instantly inside the editor interface.`,
+            content: `The Monaco Editor sends your current file context to the Ollama Cloud API configured for your account. The selected model processes it and returns suggestions inside the editor interface.`,
         },
         {
             icon: Keyboard,

@@ -10,28 +10,28 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+// import {
+//   Drawer,
+//   DrawerClose,
+//   DrawerContent,
+//   DrawerDescription,
+//   DrawerFooter,
+//   DrawerHeader,
+//   DrawerTitle,
+//   DrawerTrigger,
+// } from "@/components/ui/drawer";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { 
   Bot, 
-  Code, 
-  FileText, 
-  Import, 
+  // Code, 
+  // Import, 
   Loader2,
   Power,
   PowerOff,
-  Braces,
-  Variable
+  MessageSquare,
+  // Braces,
+  // Variable
 } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
@@ -41,10 +41,19 @@ import { AIChatSidePanel } from "@/features/ai-chat/components/ai-chat-sidepanel
 interface ToggleAIProps {
   isEnabled: boolean;
   onToggle: (value: boolean) => void;
-  
   suggestionLoading: boolean;
   loadingProgress?: number;
   activeFeature?: string;
+  activeFileName?: string;
+  activeFileContent?: string;
+  activeFileLanguage?: string;
+  cursorPosition?: { line: number; column: number };
+  onInsertCode?: (
+    code: string,
+    fileName?: string,
+    position?: { line: number; column: number },
+  ) => void;
+  onRunCode?: (code: string, language: string) => void;
 }
 
 const ToggleAI: React.FC<ToggleAIProps> = ({
@@ -54,36 +63,33 @@ const ToggleAI: React.FC<ToggleAIProps> = ({
   suggestionLoading,
   loadingProgress = 0,
   activeFeature,
+  activeFileName,
+  activeFileContent,
+  activeFileLanguage,
+  cursorPosition,
+  onInsertCode,
+  onRunCode,
 }) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  // Dummy handler for code insertion from AI chat panel
   const handleInsertCode = (code: string, fileName?: string, position?: { line: number; column: number }) => {
-    // TODO: Implement actual code insertion logic
-    // For now, just log the code and info
-    console.log("Insert code:", { code, fileName, position });
-    // You can add your integration with the editor here
+    onInsertCode?.(code, fileName, position);
   };
 
-  // Dummy handler for running code from AI chat panel
   const handleRunCode = (code: string, language: string) => {
-    console.log("Run code:", { code, language });
+    onRunCode?.(code, language);
   };
-
-  // Dummy activeFile and cursorPosition for demonstration
-  const activeFile = { name: "example.ts", content: "// file content" };
-  const cursorPosition = { line: 1, column: 1 };
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             variant={isEnabled ? "default" : "outline"}
             className={cn(
               "relative gap-2 h-8 px-3 text-sm font-medium transition-all duration-200",
-              isEnabled 
+              isEnabled
                 ? "bg-zinc-900 hover:bg-zinc-800 text-zinc-50 border-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 dark:text-zinc-900 dark:border-zinc-200" 
                 : "bg-background hover:bg-accent text-foreground border-border",
               suggestionLoading && "opacity-75"
@@ -95,7 +101,7 @@ const ToggleAI: React.FC<ToggleAIProps> = ({
             ) : (
               <Bot className="h-4 w-4" />
             )}
-            <span>AI</span>
+            <span>Suggestion</span>
             {isEnabled ? (
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
             ) : (
@@ -173,33 +179,27 @@ const ToggleAI: React.FC<ToggleAIProps> = ({
             </div>
           </DropdownMenuItem>
           
-          <DropdownMenuSeparator />
-          
-          <DropdownMenuItem 
-            onClick={() => setIsChatOpen(true)}
-            className="py-2.5 cursor-pointer"
-          >
-            <div className="flex items-center gap-3 w-full">
-              <FileText className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <div className="text-sm font-medium">Open Chat</div>
-                <div className="text-xs text-muted-foreground">
-                  Chat with AI assistant
-                </div>
-              </div>
-            </div>
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => setIsChatOpen(true)}
+        className="h-8 gap-2 border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white"
+      >
+        <MessageSquare className="h-4 w-4" />
+        <span>Open Agents</span>
+      </Button>
 
       <AIChatSidePanel
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
         onInsertCode={handleInsertCode}
         onRunCode={handleRunCode}
-        activeFileName={activeFile?.name}
-        activeFileContent={activeFile?.content}
-        activeFileLanguage="TypeScript" // Assuming TypeScript as the language
+        activeFileName={activeFileName}
+        activeFileContent={activeFileContent}
+        activeFileLanguage={activeFileLanguage}
         cursorPosition={cursorPosition}
         theme="dark"
       />

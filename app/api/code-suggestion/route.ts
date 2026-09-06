@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { DEFAULT_OLLAMA_MODEL, OLLAMA_BASE_URL } from "@/lib/ai/agents"
+import { auth } from "@/auth"
+import { getOllamaConfig } from "@/lib/ai/ollama-config"
 
 interface CodeSuggestionRequest {
   fileContent: string
@@ -24,6 +25,12 @@ interface CodeContext {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const ollamaConfig = await getOllamaConfig(session.user.id)
     const body: CodeSuggestionRequest = await request.json()
     const { fileContent, cursorLine, cursorColumn, suggestionType, fileName } = body
 
@@ -39,7 +46,7 @@ export async function POST(request: NextRequest) {
     const prompt = buildPrompt(context, suggestionType)
 
     // Call AI service (replace with your AI service)
-    const suggestion = await generateSuggestion(prompt)
+    const suggestion = await generateSuggestion(prompt, ollamaConfig)
 
     return NextResponse.json({
       suggestion,
@@ -135,14 +142,20 @@ Generate suggestion:`
 /**
  * Generate suggestion using AI service
  */
-async function generateSuggestion(prompt: string): Promise<string> {
+async function generateSuggestion(
+  prompt: string,
+  ollamaConfig: { apiUrl: string; apiKey: string; model: string },
+): Promise<string> {
   try {
     // Replace this with your actual AI service call
-    const response = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
+    const response = await fetch(`${ollamaConfig.apiUrl}/api/generate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${ollamaConfig.apiKey}`,
+      },
       body: JSON.stringify({
-        model: DEFAULT_OLLAMA_MODEL,
+        model: ollamaConfig.model,
         prompt,
         stream: false,
         options: {

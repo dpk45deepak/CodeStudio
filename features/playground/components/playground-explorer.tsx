@@ -1,14 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { ChevronRight, File, Folder, Plus, FilePlus, FolderPlus, MoreHorizontal, Trash2, Edit3 } from "lucide-react"
+import { ChevronRight, File, Folder, FilePlus, FolderPlus, MoreHorizontal, Trash2, Edit3 } from "lucide-react"
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
@@ -24,27 +23,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Input } from "@/components/ui/input"
+
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import RenameFolderDialog from "./dialogs/rename-folder-dialog"
 import NewFolderDialog from "./dialogs/new-folder-dialog"
 import NewFileDialog from "./dialogs/new-file-dialog"
@@ -130,27 +110,35 @@ export function TemplateFileTree({
   }
 
   return (
-    <Sidebar>
+    <Sidebar
+      collapsible="none"
+      className="h-full w-full min-w-0 bg-transparent"
+    >
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-gray-300">{title}</SidebarGroupLabel>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <SidebarGroupAction>
-                <Plus className="h-4 w-4" />
-              </SidebarGroupAction>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleAddRootFile}>
-                <FilePlus className="h-4 w-4 mr-2" />
-                New File
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleAddRootFolder}>
-                <FolderPlus className="h-4 w-4 mr-2" />
-                New Folder
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="ml-auto flex items-center gap-1">
+            <Button
+              variant="default"
+              size="icon"
+              className="h-7 w-7"
+              onClick={handleAddRootFile}
+              title="Create file in playground root"
+              aria-label="Create file in playground root"
+            >
+              <FilePlus className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={handleAddRootFolder}
+              title="Create folder in playground root"
+              aria-label="Create folder in playground root"
+            >
+              <FolderPlus className="h-4 w-4" />
+            </Button>
+          </div>
           <SidebarGroupContent>
             <SidebarMenu>
               {isRootFolder ? (
@@ -281,7 +269,7 @@ function TemplateNode({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                className={`h-6 w-6 transition-opacity ${level === 0 ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
               >
                 <MoreHorizontal className="h-3 w-3" />
               </Button>
@@ -395,7 +383,7 @@ function TemplateNode({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className={`h-6 w-6 transition-opacity ${level === 0 ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
                 >
                   <MoreHorizontal className="h-3 w-3" />
                 </Button>
@@ -421,6 +409,26 @@ function TemplateNode({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={handleAddFile}
+              title={`Create file inside ${folderName}`}
+              aria-label={`Create file inside ${folderName}`}
+            >
+              <FilePlus className="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={handleAddFolder}
+              title={`Create folder inside ${folderName}`}
+              aria-label={`Create folder inside ${folderName}`}
+            >
+              <FolderPlus className="h-3 w-3" />
+            </Button>
           </div>
 
           <CollapsibleContent>

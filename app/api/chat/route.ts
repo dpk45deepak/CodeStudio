@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { OLLAMA_BASE_URL, getAvailableAgents, runAgentWorkflow } from "@/lib/ai/agents";
+import { auth } from "@/auth";
+import { getAvailableAgents, runAgentWorkflow } from "@/lib/ai/agents";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -15,8 +16,8 @@ interface EnhancePromptRequest {
   };
 }
 
-async function enhancePrompt(request: EnhancePromptRequest) {
-  const enhancementPrompt = `You are a prompt enhancement assistant. Improve the user's prompt for a local code-focused AI agent without changing intent.
+async function enhancePrompt(request: EnhancePromptRequest, userId: string) {
+  const enhancementPrompt = `You are a prompt enhancement assistant. Improve the user's prompt for a cloud code-focused AI agent without changing intent.
 
 Original prompt: "${request.prompt}"
 
@@ -28,6 +29,7 @@ Return only the enhanced prompt text.`;
     const { response } = await runAgentWorkflow({
       message: enhancementPrompt,
       mode: "architect",
+      userId,
     });
 
     return response.trim() || request.prompt;
@@ -39,10 +41,15 @@ Return only the enhanced prompt text.`;
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
 
     if (body.action === "enhance") {
-      const enhancedPrompt = await enhancePrompt(body as EnhancePromptRequest);
+      const enhancedPrompt = await enhancePrompt(body as EnhancePromptRequest, session.user.id);
       return NextResponse.json({ enhancedPrompt });
     }
 
@@ -69,6 +76,7 @@ export async function POST(req: NextRequest) {
       message,
       history: validHistory.slice(-10),
       mode,
+      userId: session.user.id,
     });
 
     return NextResponse.json({
@@ -95,8 +103,7 @@ export async function GET() {
   return NextResponse.json({
     status: "AI Chat API is running",
     timestamp: new Date().toISOString(),
-    baseUrl: OLLAMA_BASE_URL,
     agents: getAvailableAgents(),
-    info: "Use POST to send chat messages or enhance prompts. Ensure the selected local Ollama model is already pulled.",
+    info: "Configure Ollama Cloud in Settings before sending requests.",
   });
 }

@@ -22,6 +22,7 @@ import {
     Globe,
     PanelLeftClose,
     PanelLeftOpen,
+    TerminalSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -69,6 +70,7 @@ const MainPlaygroundPage: React.FC = () => {
     });
 
     const [isPreviewVisible, setIsPreviewVisible] = useState(true);
+    const [isTerminalVisible, setIsTerminalVisible] = useState(false);
     const [isFileTreeVisible, setIsFileTreeVisible] = useState(true);
 
     // Custom hooks
@@ -331,6 +333,39 @@ const MainPlaygroundPage: React.FC = () => {
         }
     };
 
+    const handleInsertCodeFromAI = useCallback(
+        (
+            code: string,
+            _fileName?: string,
+            position?: { line: number; column: number },
+        ) => {
+            if (!activeFileId) {
+                toast.info("Open a file before inserting code");
+                return;
+            }
+
+            const file = openFiles.find((item) => item.id === activeFileId);
+            if (!file) return;
+
+            const lines = file.content.split("\n");
+            if (!position) {
+                const separator = file.content.length > 0 ? "\n\n" : "";
+                updateFileContent(activeFileId, `${file.content}${separator}${code}`);
+                return;
+            }
+
+            const lineIndex = Math.max(
+                0,
+                Math.min(lines.length - 1, position.line - 1),
+            );
+            const line = lines[lineIndex] ?? "";
+            const columnIndex = Math.max(0, Math.min(line.length, position.column - 1));
+            lines[lineIndex] = `${line.slice(0, columnIndex)}${code}${line.slice(columnIndex)}`;
+            updateFileContent(activeFileId, lines.join("\n"));
+        },
+        [activeFileId, openFiles, updateFileContent],
+    );
+
     // Add event to save file by click ctrl + s
     React.useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -437,7 +472,7 @@ const MainPlaygroundPage: React.FC = () => {
 
     return (
         <TooltipProvider>
-            <div className="relative flex h-[calc(100vh-4rem)] bg-slate-950">
+            <div className="relative flex h-screen min-h-0 w-full shrink-0 overflow-hidden bg-slate-950">
                 {/* Ambient Glow */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
                     <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 blur-3xl rounded-full" />
@@ -446,7 +481,7 @@ const MainPlaygroundPage: React.FC = () => {
 
                 {/* File Tree Sidebar */}
                 <div
-                    className={`relative transition-all duration-300 ${isFileTreeVisible ? "w-72" : "w-0 overflow-hidden"}`}
+                    className={`relative shrink-0 transition-all duration-300 ${isFileTreeVisible ? "w-72" : "w-0 overflow-hidden"}`}
                 >
                     <div className="h-full bg-slate-900/50 border-r border-slate-800 backdrop-blur-sm">
                         <TemplateFileTree
@@ -465,7 +500,7 @@ const MainPlaygroundPage: React.FC = () => {
                 </div>
 
                 {/* Main Content */}
-                <SidebarInset className="relative flex-1 min-w-0 bg-slate-950/50">
+                <SidebarInset className="relative flex min-h-0 flex-1 min-w-0 flex-col bg-slate-950/50">
                     {/* Header */}
                     <header className="flex h-14 shrink-0 items-center gap-2 border-b border-slate-800/50 px-4 bg-slate-900/30 backdrop-blur-sm">
                         <Button
@@ -589,6 +624,14 @@ const MainPlaygroundPage: React.FC = () => {
                                     isEnabled={aiSuggestions.isEnabled}
                                     onToggle={aiSuggestions.toggleEnabled}
                                     suggestionLoading={aiSuggestions.isLoading}
+                                    activeFileName={
+                                        activeFile
+                                            ? `${activeFile.filename}.${activeFile.fileExtension}`
+                                            : undefined
+                                    }
+                                    activeFileContent={activeFile?.content}
+                                    activeFileLanguage={activeFile?.fileExtension}
+                                    onInsertCode={handleInsertCodeFromAI}
                                 />
 
                                 <DropdownMenu>
@@ -640,9 +683,9 @@ const MainPlaygroundPage: React.FC = () => {
                     </header>
 
                     {/* Main Content Area */}
-                    <div className="relative flex-1">
+                    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
                         {openFiles.length > 0 ? (
-                            <div className="h-full flex flex-col">
+                            <div className="flex h-full min-h-0 flex-col">
                                 {/* File Tabs */}
                                 <div className="border-b border-slate-800/50 bg-slate-900/30 backdrop-blur-sm">
                                     <Tabs
@@ -701,7 +744,7 @@ const MainPlaygroundPage: React.FC = () => {
                                 </div>
 
                                 {/* Editor and Preview */}
-                                <div className="flex-1 relative">
+                                <div className="relative min-h-0 flex-1 overflow-hidden">
                                     <ResizablePanelGroup
                                         direction="horizontal"
                                         className="h-full"
@@ -788,6 +831,32 @@ const MainPlaygroundPage: React.FC = () => {
                                                                     {serverUrl}
                                                                 </span>
                                                             )}
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="ghost"
+                                                                        onClick={() =>
+                                                                            setIsTerminalVisible(
+                                                                                (visible) => !visible,
+                                                                            )
+                                                                        }
+                                                                        aria-label={
+                                                                            isTerminalVisible
+                                                                                ? "Hide terminal"
+                                                                                : "Show terminal"
+                                                                        }
+                                                                        className="ml-auto h-6 w-6 p-0 text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+                                                                    >
+                                                                        <TerminalSquare className="h-3.5 w-3.5" />
+                                                                    </Button>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    {isTerminalVisible
+                                                                        ? "Hide terminal"
+                                                                        : "Show terminal"}
+                                                                </TooltipContent>
+                                                            </Tooltip>
                                                         </div>
                                                         <div className="pt-8 h-full">
                                                             <WebContainerPreview
@@ -809,6 +878,9 @@ const MainPlaygroundPage: React.FC = () => {
                                                                 serverUrl={
                                                                     serverUrl!
                                                                 }
+                                                                showTerminal={
+                                                                    isTerminalVisible
+                                                                }
                                                                 forceResetup={
                                                                     false
                                                                 }
@@ -822,7 +894,7 @@ const MainPlaygroundPage: React.FC = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex flex-col h-full items-center justify-center gap-4 bg-slate-950/50">
+                            <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-slate-950/50">
                                 <div className="relative">
                                     <div className="absolute inset-0 bg-blue-500/5 blur-2xl rounded-full" />
                                     <div className="relative h-20 w-20 rounded-2xl bg-slate-800/50 border border-slate-700 flex items-center justify-center">
