@@ -62,9 +62,11 @@ export const createPlayground = async (data:{
         throw new Error(`Template not found: ${template}`);
       }
 
-      const templateData = await scanTemplateDirectory(
-        path.join(/* turbopackIgnore: true */ process.cwd(), templatePath),
+      const templateDirectory = path.join(
+        /* turbopackIgnore: true */ process.cwd(),
+        templatePath,
       );
+      const templateData = await scanTemplateDirectory(templateDirectory);
         const playground = await db.playground.create({
         data: {
           title,

@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  outputFileTracingIncludes: {
+    "/*": [
+      "./vibecode-starters/react-ts/**",
+      "./vibecode-starters/nextjs/**",
+      "./vibecode-starters/express-simple/**",
+      "./vibecode-starters/vue/**",
+      "./vibecode-starters/hono-nodejs-starter/**",
+      "./vibecode-starters/angular/**",
+    ],
+  },
   images: {
     remotePatterns: [
       {
