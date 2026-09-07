@@ -6,15 +6,18 @@
 
 </div>
 
-CodeStudio transforms your browser into a powerful development workspace. By combining Next.js, Monaco, and Ollama Cloud, it delivers intelligent code suggestions, interactive AI chat, and agent-style assistance through each user's configured cloud model.
+CodeStudio transforms your browser into a development workspace. By combining Next.js, Monaco, WebContainers, Ollama Cloud, and Gemini, it delivers inline code suggestions, live previews, persistent AI chat, and agent-style assistance through each user's encrypted provider configuration.
 
 ---
 
 ## ✨ Key Features
 
 - **💻 Modern Editing Experience:** Powered by Monaco for a robust, VS Code-like environment in your browser.
-- **🧠 Ollama Cloud Chat:** Prompt enhancement and intelligent conversational assistance routed through your Ollama Cloud account.
-- **⚡ Smart Code Suggestions:** Real-time playground coding powered by the model selected in Settings.
+- **🧠 Gemini Agent Workflows:** Architect, Debugger, Refactorer, and Sentinel agents for design, fixes, refactoring, and security reviews, with Ollama fallback.
+- **⚡ Ollama Inline Suggestions:** Real-time playground coding powered by the user's selected Ollama model.
+- **🧠 Persistent Agent Memory:** Chat history is stored per user and durable project context is reused across sessions.
+- **🌐 Live Playground Previews:** WebContainer previews adapt to static HTML, Vite, Next.js, TutorialKit, Angular, Express, and other starters.
+- **🧩 Starter Templates:** React, Next.js, Express, Angular, Web Platform, Vite React TypeScript, TutorialKit, TypeScript, and JavaScript.
 - **🔐 Private Credentials:** API keys are encrypted before they are stored in the database and are never returned to the browser.
 - **🛠️ Robust Architecture:** Built on the Next.js App Router with a Prisma-ready backend and agent-style task routing.
 - **🔐 Secure Access:** Integrated authentication and personalized dashboard structure.
@@ -25,7 +28,7 @@ CodeStudio transforms your browser into a powerful development workspace. By com
 
 **Frontend:** Next.js | React | TypeScript | Tailwind CSS 
 **Editor:** Monaco Editor  
-**AI & Orchestration:** Ollama Cloud | LangChain & LangGraph  
+**AI & Orchestration:** Ollama Cloud | Google Gemini | LangChain & LangGraph  
 **Backend & Database:** Prisma | NextAuth  
 
 ---
@@ -34,9 +37,9 @@ CodeStudio transforms your browser into a powerful development workspace. By com
 
 Get your cloud-assisted AI development environment up and running in minutes.
 
-### 1. Configure Ollama Cloud
+### 1. Configure AI Providers
 
-After signing in, open **Settings** and provide your Ollama Cloud API URL, API key, and model. The API key is encrypted server-side before being stored for future requests. Set `OLLAMA_CONFIG_ENCRYPTION_KEY` in your environment to a long random secret; `AUTH_SECRET` is used as a fallback.
+After signing in, open **Settings** and provide your Ollama Cloud URL, API key, and model for inline suggestions. Add a Google AI Studio Gemini API key and model for Agent workflows. Provider keys are encrypted server-side before being stored. Set `OLLAMA_CONFIG_ENCRYPTION_KEY` to a long random secret; `AUTH_SECRET` is used as a fallback.
 
 ### 2. Clone & Install Dependencies
 

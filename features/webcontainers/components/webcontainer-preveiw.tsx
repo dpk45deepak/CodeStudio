@@ -74,39 +74,6 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
         setIsSetupInProgress(true);
         setSetupError(null);
         
-        // Check if server is already running by testing if files are already mounted
-        try {
-          const packageJsonExists = await instance.fs.readFile('package.json', 'utf8');
-          if (packageJsonExists) {
-            // Files are already mounted, just reconnect to existing server
-            if (terminalRef.current?.writeToTerminal) {
-              terminalRef.current.writeToTerminal("🔄 Reconnecting to existing WebContainer session...\r\n");
-            }
-            
-            // Check if server is already running
-            instance.on("server-ready", (port: number, url: string) => {
-              console.log(`Reconnected to server on port ${port} at ${url}`);
-              if (terminalRef.current?.writeToTerminal) {
-                terminalRef.current.writeToTerminal(`🌐 Reconnected to server at ${url}\r\n`);
-              }
-              setPreviewUrl(url);
-              setLoadingState((prev) => ({
-                ...prev,
-                starting: false,
-                ready: true,
-              }));
-              setIsSetupComplete(true);
-              setIsSetupInProgress(false);
-            });
-            
-            setCurrentStep(4);
-            setLoadingState((prev) => ({ ...prev, starting: true }));
-            return;
-          }
-        } catch (e) {
-          // Files don't exist, proceed with normal setup
-        }
-        
         // Step 1: Transform data
         setLoadingState((prev) => ({ ...prev, transforming: true }));
         setCurrentStep(1);
@@ -144,26 +111,36 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
         }));
         setCurrentStep(3);
 
-        // Step 3: Install dependencies
+        let packageJson: { scripts?: Record<string, string>; dependencies?: Record<string, string>; devDependencies?: Record<string, string> } | null = null;
+        try {
+          packageJson = JSON.parse(
+            await instance.fs.readFile("package.json", "utf8"),
+          );
+        } catch {
+          packageJson = null;
+        }
+
+        // Step 3: Install dependencies for npm-based templates only.
         if (terminalRef.current?.writeToTerminal) {
           terminalRef.current.writeToTerminal("📦 Installing dependencies...\r\n");
         }
         
-        const installProcess = await instance.spawn("npm", ["install"]);
+        const installProcess = packageJson
+          ? await instance.spawn("npm", ["install"])
+          : null;
 
         // Stream install output to terminal
-        installProcess.output.pipeTo(
+        installProcess?.output.pipeTo(
           new WritableStream({
             write(data) {
-              // Write directly to terminal
               if (terminalRef.current?.writeToTerminal) {
                 terminalRef.current.writeToTerminal(data);
               }
             },
-          })
+          }),
         );
 
-        const installExitCode = await installProcess.exit;
+        const installExitCode = installProcess ? await installProcess.exit : 0;
 
         if (installExitCode !== 0) {
           throw new Error(`Failed to install dependencies. Exit code: ${installExitCode}`);
@@ -185,10 +162,40 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
           terminalRef.current.writeToTerminal("🚀 Starting development server...\r\n");
         }
         
-        const packageJson = JSON.parse(
-          await instance.fs.readFile("package.json", "utf8"),
-        ) as { scripts?: Record<string, string> };
-        const startScript = packageJson.scripts?.dev ? "dev" : "start";
+        const scripts = packageJson?.scripts ?? {};
+        let startCommand: { command: string; args: string[]; label: string };
+
+        if (scripts.dev) {
+          startCommand = {
+            command: "npm",
+            args: ["run", "dev", "--", "--host", "0.0.0.0"],
+            label: "npm run dev",
+          };
+        } else if (scripts.start) {
+          startCommand = {
+            command: "npm",
+            args: ["run", "start", "--", "--host", "0.0.0.0"],
+            label: "npm run start",
+          };
+        } else if (packageJson) {
+          // Minimal JS/TS starters are Vite-compatible but do not define scripts.
+          startCommand = {
+            command: "npx",
+            args: ["--yes", "vite", "--host", "0.0.0.0"],
+            label: "npx vite",
+          };
+        } else {
+          // Static HTML starters do not need npm or a build step.
+          startCommand = {
+            command: "npx",
+            args: ["--yes", "serve", "-l", "3000"],
+            label: "npx serve",
+          };
+        }
+
+        if (terminalRef.current?.writeToTerminal) {
+          terminalRef.current.writeToTerminal(`▶️ Starting ${startCommand.label}...\r\n`);
+        }
         // Listen for server ready event
         instance.on("server-ready", (port: number, url: string) => {
           console.log(`Server ready on port ${port} at ${url}`);
@@ -205,7 +212,7 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
           setIsSetupInProgress(false);
         });
 
-        const startProcess = await instance.spawn("npm", ["run", startScript]);
+        const startProcess = await instance.spawn(startCommand.command, startCommand.args);
 
         // Handle start process output - stream to terminal
         startProcess.output.pipeTo(

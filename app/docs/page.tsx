@@ -10,26 +10,26 @@ export default function DocsPage() {
         {
             icon: Cpu,
             color: "blue",
-            title: "Ollama Cloud AI Integration",
-            content: `CodeStudio uses your saved Ollama Cloud configuration to provide real-time AI coding assistance. Add your Ollama Cloud API URL, API key, and model in Settings before using chat or code suggestions.`,
+            title: "AI Provider Setup",
+            content: `Use Ollama Cloud for inline editor suggestions and Gemini for Agent workflows. Add the provider URL, API keys, and model names in Settings. Credentials are encrypted server-side and are never returned to the browser.`,
         },
         {
             icon: Code2,
             color: "emerald",
-            title: "AI Code Suggestions",
-            content: `The AI can suggest code completions, explain errors, generate functions, and refactor existing code. Suggestions appear inline while typing inside the editor.`,
+            title: "Inline Suggestions",
+            content: `Ollama analyzes the active file and cursor context to generate completions, explain errors, generate functions, and refactor code. Trigger suggestions from the editor or the AI controls.`,
         },
         {
             icon: BookOpen,
             color: "purple",
-            title: "How It Works",
-            content: `The Monaco Editor sends your current file context to the Ollama Cloud API configured for your account. The selected model processes it and returns suggestions inside the editor interface.`,
+            title: "Agents, History, and Memory",
+            content: `Open Agents routes requests through Architect, Debugger, Refactorer, and Sentinel workflows. Conversations are stored per user, recent history is restored between sessions, and durable project context is kept as long-term memory.`,
         },
         {
             icon: Keyboard,
             color: "cyan",
-            title: "Editor Shortcuts",
-            content: `CodeStudio supports powerful Monaco Editor shortcuts to improve productivity while coding. Master these to navigate your workspace at lightspeed.`,
+            title: "Playgrounds and Previews",
+            content: `Create playgrounds from React, Next.js, Express, Angular, Web Platform, Vite React TypeScript, TutorialKit, TypeScript, or JavaScript starters. WebContainer adapts the preview command to the selected project.`,
         },
     ];
 
@@ -82,9 +82,9 @@ export default function DocsPage() {
                         </h1>
                         <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed font-light">
                             Learn how CodeStudio’s AI-powered core works with
-                            your local{" "}
+                            your configured{" "}
                             <strong className="text-slate-200 font-semibold">
-                                Ollama
+                                AI providers
                             </strong>{" "}
                             model to provide intelligent assistance and powerful
                             shortcuts.

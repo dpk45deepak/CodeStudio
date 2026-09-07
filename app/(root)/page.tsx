@@ -103,9 +103,9 @@ const Footer = () => (
                     </span>
                 </Link>
                 <p className="text-slate-400 text-sm leading-relaxed">
-                    The ultimate cloud-based code editor powered by local
-                    multi-agent AI. Build faster, privately, and
-                    collaboratively.
+                    A browser-based development workspace with Monaco editing,
+                    WebContainer previews, Ollama inline suggestions, and
+                    Gemini-powered agents.
                 </p>
             </div>
 
@@ -124,7 +124,7 @@ const Footer = () => (
                         href="#"
                         className="text-slate-400 hover:text-blue-400"
                     >
-                        Ollama Setup
+                        AI Provider Setup
                     </Link>
                     <Link
                         href="#"
@@ -153,7 +153,7 @@ const Footer = () => (
 
         <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800/50 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
             <p>© {new Date().getFullYear()} CodeStudio. All rights reserved.</p>
-            <p>Built with Next.js & Ollama</p>
+            <p>Built with Next.js, Ollama, Gemini, and WebContainers</p>
         </div>
     </footer>
 );
@@ -192,7 +192,7 @@ export default async function Home() {
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-blue-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(45,212,191,0.2)] mb-8">
                         <span className="flex h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
                         <span className="text-xs font-mono font-medium text-blue-300 uppercase tracking-wider">
-                            CodeStudio Multi-Agent Engine v1.0
+                            CodeStudio AI Workspace
                         </span>
                     </div>
 
@@ -200,7 +200,7 @@ export default async function Home() {
                     <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1]">
                         Code infinitely with <br className="hidden md:block" />
                         <span className="bg-clip-text text-transparent bg-linear-to-r from-blue-400 via-indigo-400 to-cyan-500 drop-shadow-sm">
-                            Local Multi-Agent AI.
+                            AI that ships with your code.
                         </span>
                     </h1>
 
@@ -208,12 +208,11 @@ export default async function Home() {
                     <p className="mt-6 text-lg md:text-xl text-slate-400 max-w-2xl leading-relaxed font-light">
                         Experience the future of development.{" "}
                         <strong className="text-slate-200 font-semibold">
-                            DevTgthr
+                            CodeStudio
                         </strong>{" "}
-                        bridges real-time cloud collaboration with the raw,
-                        uncensored power of local{" "}
-                        <strong className="text-slate-200">Ollama</strong>{" "}
-                        models to code alongside infinite AI agents.
+                            combines a VS Code-like editor, live browser previews,
+                            Ollama-powered inline suggestions, and Gemini-powered
+                            agents that remember your working context.
                     </p>
 
                     {/* Terminal-Style Ollama Setup */}
@@ -225,26 +224,25 @@ export default async function Home() {
                                 <div className="w-3 h-3 rounded-full bg-green-500/80" />
                             </div>
                             <span className="text-xs font-mono text-slate-400 flex items-center gap-2">
-                                <Cpu className="w-3 h-3" /> Local Runtime
-                                Required
+                                <Cpu className="w-3 h-3" /> AI Providers
+                                Configured per user
                             </span>
                         </div>
                         <div className="p-5 font-mono text-sm space-y-3">
                             <p className="text-slate-300">
                                 <span className="text-blue-400"># 1.</span>{" "}
-                                Install Ollama locally for zero-latency agent
-                                communication
+                                Connect Ollama for inline code suggestions
                             </p>
                             <div className="flex items-center gap-3 p-3 bg-black/50 rounded-lg border border-slate-800">
                                 <Terminal className="w-4 h-4 text-emerald-500" />
                                 <code className="text-emerald-400">
-                                    Configure Ollama Cloud in Settings
+                                    Configure Ollama + Gemini in Settings
                                 </code>
                             </div>
                             <p className="text-slate-500 text-xs mt-2">
-                                * The multi-agent workspace routes all AI
-                                requests directly to your local hardware. No API
-                                limits. No code leaves your machine.
+                                * Ollama handles editor suggestions. Gemini powers
+                                agent workflows. Credentials are encrypted before
+                                they are stored.
                             </p>
                         </div>
                     </div>
@@ -303,10 +301,10 @@ export default async function Home() {
                                 Infinite Multi-Agent Coding
                             </h3>
                             <p className="text-slate-400 max-w-md leading-relaxed">
-                                Spawn specialized AI agents for refactoring,
-                                writing tests, or debugging simultaneously.
-                                Powered by your Ollama Cloud account
-                                for limitless, free execution.
+                                Use Architect, Debugger, Refactorer, and Sentinel
+                                agents for design, fixes, refactoring, and
+                                security reviews. Gemini is preferred for agent
+                                work, with Ollama available as fallback.
                             </p>
                         </div>
 
@@ -319,9 +317,8 @@ export default async function Home() {
                                 Cloud Sync
                             </h3>
                             <p className="text-slate-400 leading-relaxed">
-                                Invite human teammates. Share cursors and
-                                terminals in real-time while local AI processes
-                                the heavy lifting.
+                                Keep conversations across sessions with stored
+                                agent history and long-term project context.
                             </p>
                         </div>
 
@@ -334,9 +331,9 @@ export default async function Home() {
                                 Absolute Privacy
                             </h3>
                             <p className="text-slate-400 leading-relaxed">
-                                Your proprietary codebase never hits an external
-                                API. All code analysis stays strictly on your
-                                local hardware.
+                                Provider credentials are encrypted server-side
+                                and never returned to the browser. Review your
+                                provider policies before sending code context.
                             </p>
                         </div>
 
@@ -351,8 +348,9 @@ export default async function Home() {
                             <p className="text-slate-400 max-w-md leading-relaxed">
                                 Built on the same foundation as VS Code. Enjoy
                                 syntax highlighting, rich IntelliSense, and
-                                multi-language support instantly in your
-                                browser.
+                                multi-language support, inline AI suggestions,
+                                and live WebContainer previews instantly in
+                                your browser.
                             </p>
                         </div>
                     </div>

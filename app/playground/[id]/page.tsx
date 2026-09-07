@@ -860,6 +860,7 @@ const MainPlaygroundPage: React.FC = () => {
                                                         </div>
                                                         <div className="pt-8 h-full">
                                                             <WebContainerPreview
+                                                                key={id}
                                                                 templateData={
                                                                     templateData
                                                                 }

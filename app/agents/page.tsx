@@ -18,7 +18,7 @@ export default function AgentsPage() {
     const agents = [
         {
             name: "The Architect",
-            model: "deepseek-coder",
+            model: "Gemini or Ollama",
             icon: Layers,
             color: "blue",
             bg: "bg-blue-500/10 border-blue-500/20 text-blue-400",
@@ -26,7 +26,7 @@ export default function AgentsPage() {
         },
         {
             name: "The Debugger",
-            model: "deepseek-coder",
+            model: "Gemini or Ollama",
             icon: SearchCode,
             color: "emerald",
             bg: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
@@ -34,7 +34,7 @@ export default function AgentsPage() {
         },
         {
             name: "The Refactorer",
-            model: "deepseek-coder",
+            model: "Gemini or Ollama",
             icon: Wrench,
             color: "purple",
             bg: "bg-purple-500/10 border-purple-500/20 text-purple-400",
@@ -42,7 +42,7 @@ export default function AgentsPage() {
         },
         {
             name: "The Sentinel",
-            model: "deepseek-coder",
+            model: "Gemini or Ollama",
             icon: ShieldAlert,
             color: "cyan",
             bg: "bg-cyan-500/10 border-cyan-500/20 text-cyan-400",
@@ -77,8 +77,9 @@ export default function AgentsPage() {
                 </h1>
                 
                 <p className="text-lg md:text-xl text-slate-400 leading-relaxed font-light max-w-2xl">
-                    CodeStudio seamlessly routes your prompts to specialized, locally hosted AI models. 
-                    Zero latency. Zero privacy concerns. Absolute control.
+                    CodeStudio routes each request to a specialized workflow.
+                    Gemini powers Agents by default, with Ollama available as a
+                    configured fallback.
                 </p>
             </div>
 
@@ -133,7 +134,7 @@ export default function AgentsPage() {
                     </div>
                     <div className="flex items-center gap-2 text-xs font-mono text-slate-400 bg-slate-950 px-3 py-1 rounded-md border border-slate-800">
                         <Zap className="w-3 h-3 text-yellow-500" />
-                        Ollama Core
+                        Gemini + Ollama
                     </div>
                 </div>
 
@@ -141,10 +142,10 @@ export default function AgentsPage() {
                     <div className="flex-1 space-y-4">
                         <h3 className="text-xl font-bold text-slate-100">Powered by your Hardware</h3>
                         <p className="text-slate-400 leading-relaxed">
-                            To use the multi-agent system, configure your Ollama Cloud URL, API key, and model in Settings. CodeStudio will route tasks through your saved cloud configuration.
+                            Configure your Gemini API key for Agent work and your Ollama Cloud URL, API key, and model for inline editor suggestions. Credentials are stored encrypted per user.
                         </p>
                         <div className="flex items-center gap-2 text-sm text-slate-500 pt-2 font-mono">
-                            <span className="text-blue-400">$</span> Configure Ollama Cloud
+                            <span className="text-blue-400">$</span> Configure AI providers in Settings
                         </div>
                     </div>
                     
