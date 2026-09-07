@@ -1,8 +1,10 @@
 "use server"
 import { currentUser } from "@/features/auth/actions";
 import { db } from "@/lib/db"
-import { TemplateFolder } from "../libs/path-to-json";
+import { scanTemplateDirectory, TemplateFolder } from "../libs/path-to-json";
+import { templatePaths } from "@/lib/template";
 import { revalidatePath } from "next/cache";
+import path from "path";
 
 
 // Toggle marked status for a problem
@@ -50,19 +52,37 @@ export const createPlayground = async (data:{
     const {template , title , description} = data;
 
     const user = await currentUser();
+    if (!user?.id) {
+      throw new Error("You must be signed in to create a playground");
+    }
+
     try {
+      const templatePath = templatePaths[template];
+      if (!templatePath) {
+        throw new Error(`Template not found: ${template}`);
+      }
+
+      const templateData = await scanTemplateDirectory(
+        path.join(/* turbopackIgnore: true */ process.cwd(), templatePath),
+      );
         const playground = await db.playground.create({
-            data:{
-                title:title,
-                description:description,
-                template:template,
-                userId:user?.id!
-            }
-        })
+        data: {
+          title,
+          description,
+          template,
+          userId:user.id,
+          templateFiles: {
+            create: {
+              content: JSON.stringify(templateData),
+            },
+          },
+        },
+      });
 
         return playground;
     } catch (error) {
-        console.log(error)
+      console.error("Error creating playground:", error);
+      throw new Error("Failed to create playground");
     }
 }
 

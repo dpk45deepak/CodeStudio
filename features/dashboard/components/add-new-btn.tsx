@@ -22,14 +22,16 @@ const AddNewButton = () => {
     template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR";
     description?: string;
   }) => {
-    setSelectedTemplate(data)
-    const res = await createPlayground(data);
-    toast("Playground created successfully");
-    // Here you would typically handle the creation of a new playground
-    // with the selected template data
-    console.log("Creating new playground:", data)
-    setIsModalOpen(false)
-    router.push(`/playground/${res?.id}`)
+    try {
+      setSelectedTemplate(data)
+      const playground = await createPlayground(data);
+      toast.success("Playground created successfully");
+      setIsModalOpen(false)
+      router.push(`/playground/${playground.id}`)
+    } catch (error) {
+      console.error("Error creating playground:", error);
+      toast.error("Failed to create playground");
+    }
   }
 
   return (
@@ -52,7 +54,7 @@ const AddNewButton = () => {
           </Button>
           <div className="flex flex-col">
             <h1 className="text-xl font-bold text-teal-600">Add New</h1>
-            <p className="text-sm text-muted-foreground max-w-[220px]">Create a new playground</p>
+            <p className="text-sm text-muted-foreground max-w-55">Create a new playground</p>
           </div>
         </div>
 
