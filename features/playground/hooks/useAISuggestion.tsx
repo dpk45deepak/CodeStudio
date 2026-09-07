@@ -77,6 +77,15 @@ export const useAISuggestions = (): UseAISuggestionsReturn => {
 
           if (!response.ok) {
             const errorData = await response.json().catch(() => null);
+            if (errorData?.code === "OLLAMA_MODEL_NOT_FOUND") {
+              setState((prev) => ({
+                ...prev,
+                suggestion: null,
+                isLoading: false,
+                isEnabled: false,
+              }));
+              return;
+            }
             throw new Error(
               errorData?.message || `API responded with status ${response.status}`,
             );
@@ -122,34 +131,12 @@ export const useAISuggestions = (): UseAISuggestionsReturn => {
 
   const acceptSuggestion = useCallback(
     (editor: any, monaco: any) => {
-      setState((currentState) => {
-        if (!currentState.suggestion || !currentState.position || !editor || !monaco) {
-          return currentState;
-        }
-
-        const { line, column } = currentState.position;
-        const sanitizedSuggestion = currentState.suggestion.replace(/^\d+:\s*/gm, "");
-
-        editor.executeEdits("", [
-          {
-            range: new monaco.Range(line, column, line, column),
-            text: sanitizedSuggestion,
-            forceMoveMarkers: true,
-          },
-        ]);
-
-        // Clear decorations
-        if (editor && currentState.decoration.length > 0) {
-          editor.deltaDecorations(currentState.decoration, []);
-        }
-
-        return {
-          ...currentState,
-          suggestion: null,
-          position: null,
-          decoration: [],
-        };
-      });
+      setState((currentState) => ({
+        ...currentState,
+        suggestion: null,
+        position: null,
+        decoration: [],
+      }));
     },
     []
   );

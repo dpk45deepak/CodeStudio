@@ -13,13 +13,25 @@ export async function GET() {
 
   const config = await db.ollamaConfig.findUnique({
     where: { userId: session.user.id },
-    select: { apiUrl: true, model: true, updatedAt: true },
+    select: {
+      apiUrl: true,
+      model: true,
+      geminiModel: true,
+      updatedAt: true,
+      encryptedGeminiApiKey: true,
+    },
   });
 
   return NextResponse.json({
     configured: Boolean(config),
     config: config
-      ? { apiUrl: config.apiUrl, model: config.model, updatedAt: config.updatedAt }
+      ? {
+          apiUrl: config.apiUrl,
+          model: config.model,
+          geminiModel: config.geminiModel,
+          geminiConfigured: Boolean(config.encryptedGeminiApiKey && config.geminiModel),
+          updatedAt: config.updatedAt,
+        }
       : null,
   });
 }
@@ -35,7 +47,15 @@ export async function PUT(request: NextRequest) {
   const apiKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
   const model = typeof body.model === "string" ? body.model.trim() : "";
 
-  if (!apiUrl || !apiKey || !model) {
+  const geminiApiKey = typeof body.geminiApiKey === "string" ? body.geminiApiKey.trim() : "";
+  const geminiModel = typeof body.geminiModel === "string" ? body.geminiModel.trim() : "";
+
+  const existingConfig = await db.ollamaConfig.findUnique({
+    where: { userId: session.user.id },
+    select: { encryptedApiKey: true },
+  });
+
+  if (!apiUrl || !model || (!apiKey && !existingConfig?.encryptedApiKey)) {
     return NextResponse.json(
       { error: "Ollama Cloud API URL, API key, and model are required" },
       { status: 400 },
@@ -48,10 +68,6 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: "Enter a valid Ollama Cloud API URL" }, { status: 400 });
   }
 
-  const existingConfig = await db.ollamaConfig.findUnique({
-    where: { userId: session.user.id },
-    select: { encryptedApiKey: true },
-  });
   const encryptedApiKey = apiKey
     ? encryptOllamaApiKey(apiKey)
     : existingConfig?.encryptedApiKey;
@@ -62,9 +78,22 @@ export async function PUT(request: NextRequest) {
 
   const config = await db.ollamaConfig.upsert({
     where: { userId: session.user.id },
-    create: { userId: session.user.id, apiUrl, encryptedApiKey, model },
-    update: { apiUrl, encryptedApiKey, model },
-    select: { apiUrl: true, model: true, updatedAt: true },
+    create: {
+      userId: session.user.id,
+      apiUrl,
+      encryptedApiKey,
+      model,
+      encryptedGeminiApiKey: geminiApiKey ? encryptOllamaApiKey(geminiApiKey) : null,
+      geminiModel: geminiModel || null,
+    },
+    update: {
+      apiUrl,
+      encryptedApiKey,
+      model,
+      ...(geminiApiKey ? { encryptedGeminiApiKey: encryptOllamaApiKey(geminiApiKey) } : {}),
+      ...(geminiModel ? { geminiModel } : {}),
+    },
+    select: { apiUrl: true, model: true, geminiModel: true, updatedAt: true },
   });
 
   return NextResponse.json({ configured: true, config });

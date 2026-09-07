@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getAvailableAgents, runAgentWorkflow } from "@/lib/ai/agents";
+import { getAgentHistory, getAgentMemory, saveAgentExchange } from "@/lib/ai/agent-memory";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Message is required and must be a string" }, { status: 400 });
     }
 
+    const storedHistory = await getAgentHistory(session.user.id, 30);
     const validHistory: ChatMessage[] = Array.isArray(history)
       ? history.filter(
           (msg: unknown): msg is ChatMessage =>
@@ -74,10 +76,13 @@ export async function POST(req: NextRequest) {
 
     const aiResponse = await runAgentWorkflow({
       message,
-      history: validHistory.slice(-10),
+      history: [...storedHistory, ...validHistory].slice(-10),
+      memory: await getAgentMemory(session.user.id),
       mode,
       userId: session.user.id,
     });
+
+    await saveAgentExchange(session.user.id, message, aiResponse.response);
 
     return NextResponse.json({
       response: aiResponse.response,
@@ -100,10 +105,15 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   return NextResponse.json({
     status: "AI Chat API is running",
     timestamp: new Date().toISOString(),
     agents: getAvailableAgents(),
+    history: await getAgentHistory(session.user.id, 30),
+    memory: await getAgentMemory(session.user.id),
     info: "Configure Ollama Cloud in Settings before sending requests.",
   });
 }

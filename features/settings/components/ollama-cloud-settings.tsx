@@ -12,6 +12,9 @@ export function OllamaCloudSettings() {
   const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL);
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("");
+  const [geminiApiKey, setGeminiApiKey] = useState("");
+  const [geminiModel, setGeminiModel] = useState("gemini-2.5-flash");
+  const [geminiConfigured, setGeminiConfigured] = useState(false);
   const [configured, setConfigured] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -28,6 +31,8 @@ export function OllamaCloudSettings() {
           setApiUrl(data.config.apiUrl);
           setModel(data.config.model);
           setConfigured(true);
+          setGeminiModel(data.config.geminiModel || "gemini-2.5-flash");
+          setGeminiConfigured(Boolean(data.config.geminiConfigured));
         }
       })
       .catch(() => setMessage("Unable to load Ollama Cloud settings."))
@@ -43,13 +48,15 @@ export function OllamaCloudSettings() {
       const response = await fetch("/api/settings/ollama", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiUrl, apiKey, model }),
+        body: JSON.stringify({ apiUrl, apiKey, model, geminiApiKey, geminiModel }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Unable to save settings");
 
       setConfigured(true);
+      setGeminiConfigured(Boolean(geminiApiKey || geminiConfigured));
       setApiKey("");
+      setGeminiApiKey("");
       setMessage("Ollama Cloud settings saved securely.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to save settings.");
@@ -87,6 +94,34 @@ export function OllamaCloudSettings() {
             value={apiUrl}
             onChange={(event) => setApiUrl(event.target.value)}
             placeholder={DEFAULT_API_URL}
+            className="border-slate-700 bg-slate-950/50 text-slate-100"
+          />
+        </div>
+        <div className="border-t border-slate-800/50 pt-6">
+          <h3 className="text-lg font-semibold text-slate-100">Gemini Agents</h3>
+          <p className="mt-1 text-sm text-slate-400">
+            Gemini powers agent work such as architecture, debugging, refactoring, and security reviews.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="gemini-api-key" className="text-slate-300">Gemini API key</Label>
+          <Input
+            id="gemini-api-key"
+            type="password"
+            value={geminiApiKey}
+            onChange={(event) => setGeminiApiKey(event.target.value)}
+            placeholder={geminiConfigured ? "Leave blank to keep the saved key" : "Your Google AI Studio API key"}
+            className="border-slate-700 bg-slate-950/50 text-slate-100"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="gemini-model" className="text-slate-300">Gemini model</Label>
+          <Input
+            id="gemini-model"
+            required
+            value={geminiModel}
+            onChange={(event) => setGeminiModel(event.target.value)}
+            placeholder="gemini-2.5-flash"
             className="border-slate-700 bg-slate-950/50 text-slate-100"
           />
         </div>

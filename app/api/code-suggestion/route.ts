@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
+import { db } from "@/lib/db"
 import { getOllamaConfig } from "@/lib/ai/ollama-config"
 
 interface CodeSuggestionRequest {
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
     const prompt = buildPrompt(context, suggestionType)
 
     // Call AI service (replace with your AI service)
-    const suggestion = await generateSuggestion(prompt, ollamaConfig)
+    const suggestion = await generateSuggestion(prompt, ollamaConfig, session.user.id)
 
     return NextResponse.json({
       suggestion,
@@ -82,8 +83,12 @@ export async function POST(request: NextRequest) {
     error instanceof Error ? error.message : "Unknown error"
 
   return NextResponse.json(
-    { error: "Internal server error", message },
-    { status: 500 }
+    {
+      error: "Unable to generate code suggestion",
+      code: message.includes("model not found") ? "OLLAMA_MODEL_NOT_FOUND" : "OLLAMA_REQUEST_FAILED",
+      message,
+    },
+    { status: 502 }
   )
   }
 }
@@ -162,32 +167,40 @@ Generate suggestion:`
 async function generateSuggestion(
   prompt: string,
   ollamaConfig: { apiUrl: string; apiKey: string; model: string },
+  userId: string,
 ): Promise<string> {
   try {
-    // Replace this with your actual AI service call
-    const response = await fetch(`${ollamaConfig.apiUrl}/api/generate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${ollamaConfig.apiKey}`,
-      },
-      body: JSON.stringify({
-        model: ollamaConfig.model,
-        prompt,
-        stream: false,
-        options: {
-          temperature: 0.7,
-          max_tokens: 300,
-        },
-      }),
-    })
+    let model = ollamaConfig.model
+    let response = await requestOllamaSuggestion(prompt, ollamaConfig, model)
+
+    if (response.status === 404) {
+      const availableModels = await getAvailableModels(ollamaConfig)
+      const fallbackModel = availableModels.find((candidate) => /code|coder|qwen|deepseek|llama/i.test(candidate)) || availableModels[0]
+
+      if (fallbackModel && fallbackModel !== model) {
+        model = fallbackModel
+        response = await requestOllamaSuggestion(prompt, ollamaConfig, model)
+        if (response.ok) {
+          await db.ollamaConfig.update({
+            where: { userId },
+            data: { model },
+          })
+        }
+      }
+    }
 
     if (!response.ok) {
-      throw new Error(`AI service error: ${response.statusText}`)
+      const details = await response.text()
+      throw new Error(
+        `Ollama request failed (${response.status} ${response.statusText}): ${details.slice(0, 300)}`,
+      )
     }
 
     const data = await response.json()
-    let suggestion = data.response
+    let suggestion = data.message?.content || data.response
+    if (typeof suggestion !== "string" || !suggestion.trim()) {
+      throw new Error("Ollama returned an empty suggestion")
+    }
 
     // Clean up the suggestion
     if (suggestion.includes("```")) {
@@ -201,7 +214,44 @@ async function generateSuggestion(
     return suggestion
   } catch (error) {
     console.error("AI generation error:", error)
-    return "// AI suggestion unavailable"
+    throw error
+  }
+}
+
+async function requestOllamaSuggestion(
+  prompt: string,
+  config: { apiUrl: string; apiKey: string },
+  model: string,
+) {
+  return fetch(`${config.apiUrl}/api/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${config.apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "user", content: prompt }],
+      stream: false,
+      options: { temperature: 0.7, num_predict: 300 },
+    }),
+  })
+}
+
+async function getAvailableModels(config: { apiUrl: string; apiKey: string }): Promise<string[]> {
+  try {
+    const response = await fetch(`${config.apiUrl}/api/tags`, {
+      headers: { Authorization: `Bearer ${config.apiKey}` },
+      cache: "no-store",
+    })
+    if (!response.ok) return []
+
+    const data = await response.json() as { models?: Array<{ name?: string }> }
+    return (data.models || [])
+      .map((model) => model.name)
+      .filter((model): model is string => Boolean(model))
+  } catch {
+    return []
   }
 }
 

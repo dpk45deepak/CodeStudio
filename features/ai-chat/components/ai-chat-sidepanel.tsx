@@ -325,9 +325,31 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
   // const [showSettings, setShowSettings] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
   const [streamResponse, setStreamResponse] = useState(true);
+  const [hasLoadedHistory, setHasLoadedHistory] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isOpen || hasLoadedHistory) return;
+
+    fetch("/api/chat")
+      .then(async (response) => {
+        if (!response.ok) return;
+        const data = await response.json();
+        if (Array.isArray(data.history)) {
+          setMessages(
+            data.history.map((message: { role: "user" | "assistant"; content: string }, index: number) => ({
+              ...message,
+              id: `stored-${index}-${Date.now()}`,
+              timestamp: new Date(),
+            })),
+          );
+        }
+        setHasLoadedHistory(true);
+      })
+      .catch(() => setHasLoadedHistory(true));
+  }, [hasLoadedHistory, isOpen]);
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
@@ -924,22 +946,26 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-                {activeFileName && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={addCurrentFileAsContext}
-                        className="text-zinc-400 hover:bg-slate-800 hover:text-zinc-100"
-                      >
-                        <Plus className="mr-1 h-4 w-4" />
-                        <span className="hidden sm:inline">Add Current File</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Add current file as context</TooltipContent>
-                  </Tooltip>
-                )}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={addCurrentFileAsContext}
+                      disabled={!activeFileName || !activeFileContent}
+                      aria-label="Add current file as context"
+                      className="text-zinc-400 hover:bg-slate-800 hover:text-zinc-100"
+                    >
+                      <Plus className="mr-1 h-4 w-4" />
+                      <span className="hidden sm:inline">Add Current File</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {activeFileName
+                      ? `Add ${activeFileName} as context`
+                      : "Select a file to add it as context"}
+                  </TooltipContent>
+                </Tooltip>
 
                 <Button
                   variant="ghost"
@@ -961,7 +987,10 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                       <Settings className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent
+                    align="end"
+                    className="z-110 border-slate-700 bg-slate-800 text-zinc-100"
+                  >
                     <DropdownMenuCheckboxItem
                       checked={autoSave}
                       onCheckedChange={setAutoSave}
@@ -1045,7 +1074,10 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                         <Filter className="h-3 w-3" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent
+                      align="end"
+                      className="z-110 border-slate-700 bg-slate-800 text-zinc-100"
+                    >
                       <DropdownMenuItem onClick={() => setFilterType("all")}>
                         All Messages
                       </DropdownMenuItem>

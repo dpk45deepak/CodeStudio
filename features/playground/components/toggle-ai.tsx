@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,6 +36,7 @@ import {
 import React from "react";
 import { cn } from "@/lib/utils";
 import { AIChatSidePanel } from "@/features/ai-chat/components/ai-chat-sidepanel";
+import { AIProviderSetupDialog } from "./ai-provider-setup-dialog";
 
 
 interface ToggleAIProps {
@@ -71,6 +72,25 @@ const ToggleAI: React.FC<ToggleAIProps> = ({
   onRunCode,
 }) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isSetupOpen, setIsSetupOpen] = useState(false);
+  const [setupProvider, setSetupProvider] = useState<"ollama" | "gemini">("ollama");
+  const [ollamaConfigured, setOllamaConfigured] = useState(false);
+  const [geminiConfigured, setGeminiConfigured] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/settings/ollama")
+      .then((response) => response.json())
+      .then((data) => {
+        setOllamaConfigured(Boolean(data.config?.apiUrl && data.config?.model));
+        setGeminiConfigured(Boolean(data.config?.geminiConfigured));
+      })
+      .catch(() => undefined);
+  }, []);
+
+  const openSetup = (provider: "ollama" | "gemini") => {
+    setSetupProvider(provider);
+    setIsSetupOpen(true);
+  };
 
   const handleInsertCode = (code: string, fileName?: string, position?: { line: number; column: number }) => {
     onInsertCode?.(code, fileName, position);
@@ -94,7 +114,6 @@ const ToggleAI: React.FC<ToggleAIProps> = ({
                 : "bg-background hover:bg-accent text-foreground border-border",
               suggestionLoading && "opacity-75"
             )}
-            onClick={(e) => e.preventDefault()}
           >
             {suggestionLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -146,7 +165,13 @@ const ToggleAI: React.FC<ToggleAIProps> = ({
           <DropdownMenuSeparator />
           
           <DropdownMenuItem 
-            onClick={() => onToggle(!isEnabled)}
+            onClick={() => {
+              if (!isEnabled && !ollamaConfigured) {
+                openSetup("ollama");
+                return;
+              }
+              onToggle(!isEnabled);
+            }}
             className="py-2.5 cursor-pointer"
           >
             <div className="flex items-center justify-between w-full">
@@ -185,7 +210,13 @@ const ToggleAI: React.FC<ToggleAIProps> = ({
       <Button
         size="sm"
         variant="outline"
-        onClick={() => setIsChatOpen(true)}
+        onClick={() => {
+          if (!geminiConfigured) {
+            openSetup("gemini");
+            return;
+          }
+          setIsChatOpen(true);
+        }}
         className="h-8 gap-2 border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white"
       >
         <MessageSquare className="h-4 w-4" />
@@ -202,6 +233,18 @@ const ToggleAI: React.FC<ToggleAIProps> = ({
         activeFileLanguage={activeFileLanguage}
         cursorPosition={cursorPosition}
         theme="dark"
+      />
+      <AIProviderSetupDialog
+        open={isSetupOpen}
+        provider={setupProvider}
+        onOpenChange={setIsSetupOpen}
+        onSaved={(provider) => {
+          if (provider === "ollama") setOllamaConfigured(true);
+          if (provider === "gemini") {
+            setGeminiConfigured(true);
+            setIsChatOpen(true);
+          }
+        }}
       />
     </>
   );

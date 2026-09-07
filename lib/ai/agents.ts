@@ -1,6 +1,8 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ChatOllama } from "@langchain/ollama";
 import { getOllamaConfig, type OllamaRuntimeConfig } from "@/lib/ai/ollama-config";
+import { getGeminiConfig, type GeminiRuntimeConfig } from "@/lib/ai/gemini-config";
+import { db } from "@/lib/db";
 
 export type AgentKey = "architect" | "debugger" | "refactorer" | "sentinel";
 export type AgentMode =
@@ -25,6 +27,7 @@ export interface AgentRunRequest {
   message: string;
   history?: Array<{ role: "user" | "assistant"; content: string }>;
   mode?: AgentMode;
+  memory?: string;
 }
 
 export interface AgentRunResponse {
@@ -163,7 +166,12 @@ function createModel(config: OllamaRuntimeConfig) {
   });
 }
 
-function buildPrompt(agent: AgentDefinition, message: string, history: Array<{ role: "user" | "assistant"; content: string }> = []) {
+function buildPrompt(
+  agent: AgentDefinition,
+  message: string,
+  history: Array<{ role: "user" | "assistant"; content: string }> = [],
+  memory = "",
+) {
   const conversationContext = history.length
     ? history
         .slice(-8)
@@ -174,17 +182,56 @@ function buildPrompt(agent: AgentDefinition, message: string, history: Array<{ r
   return [
     `Agent: ${agent.name}`,
     `Model: ${agent.model}`,
+    `Long-term user memory:\n${memory || "No saved user preferences or project context."}`,
     `Conversation context:\n${conversationContext}`,
     `User request:\n${message}`,
   ].join("\n\n");
 }
 
-export async function runAgentWorkflow({ message, history = [], mode, userId }: AgentRunRequest & { userId: string }): Promise<AgentRunResponse> {
-  const ollamaConfig = await getOllamaConfig(userId);
+async function runGemini(
+  config: GeminiRuntimeConfig,
+  agent: AgentDefinition,
+  prompt: string,
+): Promise<string> {
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.model)}:generateContent?key=${encodeURIComponent(config.apiKey)}`;
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: agent.systemPrompt }] },
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.2, maxOutputTokens: 1200 },
+    }),
+  });
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`Gemini API error (${response.status}): ${details.slice(0, 300)}`);
+  }
+
+  const data = (await response.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  };
+  return data.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("").trim() || "No response generated.";
+}
+
+export async function runAgentWorkflow({ message, history = [], mode, memory = "", userId }: AgentRunRequest & { userId: string }): Promise<AgentRunResponse> {
   const agentKey = selectAgentByMessage(message, mode);
-  const agent = { ...AGENT_CATALOG[agentKey], model: ollamaConfig.model };
-  const llm = createModel(ollamaConfig);
-  const prompt = buildPrompt(agent, message, history);
+  const geminiConfig = await getGeminiConfig(userId);
+  const ollamaConfig = geminiConfig ? null : await getOllamaConfig(userId);
+  const model = geminiConfig?.model || ollamaConfig?.model || "";
+  const agent = { ...AGENT_CATALOG[agentKey], model };
+  const prompt = buildPrompt(agent, message, history, memory);
+
+  if (geminiConfig) {
+    return {
+      response: await runGemini(geminiConfig, agent, prompt),
+      agent: agent.name,
+      model: agent.model,
+    };
+  }
+
+  const llm = createModel(ollamaConfig!);
 
   const response = await llm.invoke([
     new SystemMessage(agent.systemPrompt),
