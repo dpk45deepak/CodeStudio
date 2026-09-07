@@ -30,7 +30,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const ollamaConfig = await getOllamaConfig(session.user.id)
+    let ollamaConfig
+    try {
+      ollamaConfig = await getOllamaConfig(session.user.id)
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "Ollama Cloud is not configured. Add your Ollama Cloud settings first."
+      ) {
+        return NextResponse.json({
+          suggestion: null,
+          configured: false,
+          code: "OLLAMA_NOT_CONFIGURED",
+          message: "Configure Ollama Cloud in Settings to enable code suggestions.",
+        })
+      }
+
+      throw error
+    }
     const body: CodeSuggestionRequest = await request.json()
     const { fileContent, cursorLine, cursorColumn, suggestionType, fileName } = body
 

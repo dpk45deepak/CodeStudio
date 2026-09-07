@@ -35,7 +35,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import Image from "next/image";
 import {
   Tooltip,
   TooltipContent,
@@ -905,7 +904,12 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
             <div className="flex items-start justify-between gap-4 p-4 sm:p-6">
               <div className="flex items-center gap-3">
                 <div className="relative w-10 h-10 border rounded-full flex flex-col justify-center items-center">
-                  <Image src={"./dev.jpg"} alt="Logo" width={28} height={28} />
+                  <div
+                    role="img"
+                    aria-label="Logo"
+                    className="h-7 w-7 rounded-full bg-cover bg-center"
+                    style={{ backgroundImage: "url('/dev.jpg')" }}
+                  />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-zinc-100">

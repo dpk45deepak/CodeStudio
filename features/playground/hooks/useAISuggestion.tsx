@@ -76,11 +76,24 @@ export const useAISuggestions = (): UseAISuggestionsReturn => {
           });
 
           if (!response.ok) {
-            throw new Error(`API responded with status ${response.status}`);
+            const errorData = await response.json().catch(() => null);
+            throw new Error(
+              errorData?.message || `API responded with status ${response.status}`,
+            );
           }
 
           const data = await response.json();
           console.log("API response:", data);
+
+          if (data.code === "OLLAMA_NOT_CONFIGURED") {
+            setState((prev) => ({
+              ...prev,
+              suggestion: null,
+              isLoading: false,
+              isEnabled: false,
+            }));
+            return;
+          }
 
           if (data.suggestion) {
             const suggestionText = data.suggestion.trim();
