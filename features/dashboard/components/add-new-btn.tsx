@@ -12,14 +12,14 @@ const AddNewButton = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState<{
     title: string;
-    template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR";
+    template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR" | "WEB_PLATFORM" | "VITE_REACT_TS" | "TUTORIALKIT" | "TYPESCRIPT" | "JAVASCRIPT";
     description?: string;
   } | null>(null)
   const router = useRouter()
 
   const handleSubmit = async(data: {
     title: string;
-    template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR";
+    template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR" | "WEB_PLATFORM" | "VITE_REACT_TS" | "TUTORIALKIT" | "TYPESCRIPT" | "JAVASCRIPT";
     description?: string;
   }) => {
     try {

@@ -46,7 +46,7 @@ export const toggleStarMarked = async (playgroundId: string, isChecked: boolean)
 
 export const createPlayground = async (data:{
     title: string;
-    template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR";
+    template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR" | "WEB_PLATFORM" | "VITE_REACT_TS" | "TUTORIALKIT" | "TYPESCRIPT" | "JAVASCRIPT";
     description?: string;
   })=>{
     const {template , title , description} = data;

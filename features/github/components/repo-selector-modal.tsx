@@ -1,10 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
@@ -58,7 +56,7 @@ export default function RepoSelectorModal({
     }
   };
 
-  const searchRepositories = async () => {
+  const searchRepositories = useCallback(async () => {
     if (!searchQuery.trim()) return;
     
     setIsSearching(true);
@@ -77,7 +75,7 @@ export default function RepoSelectorModal({
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [searchQuery]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -87,22 +85,22 @@ export default function RepoSelectorModal({
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, activeTab]);
+  }, [searchQuery, activeTab, searchRepositories]);
 
   const handleSelectRepo = (repo: GitHubRepository) => {
     onSelectRepository(repo);
     onClose();
   };
 
-  const formatRepoSize = (size: number) => {
-    if (size < 1024) return `${size} B`;
-    if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
-    return `${(size / (1024 * 1024)).toFixed(1)} MB`;
-  };
+  // const formatRepoSize = (size: number) => {
+  //   if (size < 1024) return `${size} B`;
+  //   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  //   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+  // };
 
   const RepositoryCard = ({ repo }: { repo: GitHubRepository }) => (
     <Card 
-      className="cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] border-0 shadow-sm"
+      className="cursor-pointer border border-slate-800 bg-slate-900/70 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-400/50 hover:bg-slate-900 hover:shadow-md"
       onClick={() => handleSelectRepo(repo)}
     >
       <CardHeader className="pb-3">
@@ -159,25 +157,25 @@ export default function RepoSelectorModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[80vh] max-h-[80vh] p-0 flex flex-col">
-        <DialogHeader className="p-6 pb-4 border-b">
-          <DialogTitle className="text-xl font-semibold">{title}</DialogTitle>
+      <DialogContent className="flex h-[calc(100vh-2rem)] max-h-225 w-[calc(100%-2rem)] max-w-7xl flex-col overflow-hidden border-slate-800 bg-slate-950 p-0 text-slate-100 shadow-2xl sm:max-w-7xl">
+        <DialogHeader className="border-b border-slate-800 bg-slate-950 p-5 pb-4 sm:p-7 sm:pb-5">
+          <DialogTitle className="text-xl font-semibold text-slate-100">{title}</DialogTitle>
         </DialogHeader>
         
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* Tabs */}
-          <div className="flex border-b bg-background">
+          <div className="flex border-b border-slate-800 bg-slate-900/70 px-3 sm:px-5">
             <Button
               variant={activeTab === "my-repos" ? "default" : "ghost"}
               onClick={() => setActiveTab("my-repos")}
-              className="rounded-none border-b-2 px-6 py-3"
+              className="rounded-none border-b-2 border-transparent px-4 py-3 text-slate-400 data-[state=active]:border-blue-400 data-[state=active]:text-blue-300 sm:px-6"
             >
               My Repositories
             </Button>
             <Button
               variant={activeTab === "search" ? "default" : "ghost"}
               onClick={() => setActiveTab("search")}
-              className="rounded-none border-b-2 px-6 py-3"
+              className="rounded-none border-b-2 border-transparent px-4 py-3 text-slate-400 data-[state=active]:border-blue-400 data-[state=active]:text-blue-300 sm:px-6"
             >
               Search GitHub
             </Button>
@@ -185,14 +183,14 @@ export default function RepoSelectorModal({
 
           {/* Search Input */}
           {activeTab === "search" && (
-            <div className="p-4 border-b bg-muted/30">
-              <div className="relative max-w-md">
+            <div className="border-b border-slate-800 bg-slate-900/40 p-4 sm:p-5">
+              <div className="relative w-full max-w-xl">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   placeholder="Search repositories by name, language, or owner..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-10"
+                  className="h-10 border-slate-700 bg-slate-900 pl-10 text-slate-100 placeholder:text-slate-500"
                 />
               </div>
             </div>
@@ -200,7 +198,7 @@ export default function RepoSelectorModal({
 
           {/* Repository List */}
           <div className="flex-1 overflow-y-auto">
-            <div className="p-4">
+            <div className="p-4 sm:p-6">
               {isInitialLoading ? (
                 <RepositoryGridSkeleton count={6} />
               ) : (isLoading || isSearching) ? (
@@ -209,7 +207,7 @@ export default function RepoSelectorModal({
                 </div>
               ) : displayedRepos.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-32 text-center">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-slate-800 bg-slate-900">
                     <GitBranch className="w-8 h-8 text-muted-foreground" />
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -239,7 +237,7 @@ export default function RepoSelectorModal({
           </div>
         </div>
 
-        <DialogFooter className="p-4 pt-4 border-t bg-background">
+        <DialogFooter className="border-t border-slate-800 bg-slate-950 p-4 pt-4 sm:px-6">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>

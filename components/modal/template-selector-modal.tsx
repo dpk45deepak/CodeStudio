@@ -33,7 +33,7 @@ type TemplateSelectionModalProps = {
   onClose: () => void;
   onSubmit: (data: {
     title: string;
-    template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR";
+    template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR" | "WEB_PLATFORM" | "VITE_REACT_TS" | "TUTORIALKIT" | "TYPESCRIPT" | "JAVASCRIPT";
     description?: string;
   }) => void;
 };
@@ -48,6 +48,34 @@ interface TemplateOption {
   tags: string[];
   features: string[];
   category: "frontend" | "backend" | "fullstack";
+}
+
+function TemplateIcon({ template }: { template: TemplateOption }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return (
+      <span
+        aria-label={`${template.name} icon`}
+        className="text-2xl font-bold"
+        style={{ color: template.color }}
+      >
+        {template.name.charAt(0)}
+      </span>
+    );
+  }
+
+  return (
+    <Image
+      src={template.icon}
+      alt={`${template.name} icon`}
+      width={40}
+      height={40}
+      unoptimized
+      onError={() => setHasError(true)}
+      className="object-contain"
+    />
+  );
 }
 
 const templates: TemplateOption[] = [
@@ -88,34 +116,6 @@ const templates: TemplateOption[] = [
     category: "backend",
   },
   {
-    id: "vue",
-    name: "Vue.js",
-    description:
-      "Progressive JavaScript framework for building user interfaces with an approachable learning curve",
-    icon: "/vuejs-icon.svg",
-    color: "#4FC08D",
-    popularity: 4,
-    tags: ["UI", "Frontend", "JavaScript"],
-    features: ["Reactive Data Binding", "Component System", "Virtual DOM"],
-    category: "frontend",
-  },
-  {
-    id: "hono",
-    name: "Hono",
-    description:
-      "Fast, lightweight, built on Web Standards. Support for any JavaScript runtime.",
-    icon: "/hono.svg",
-    color: "#e36002",
-    popularity: 3,
-    tags: ["Node.js", "TypeScript", "Backend"],
-    features: [
-      "Dependency Injection",
-      "TypeScript Support",
-      "Modular Architecture",
-    ],
-    category: "backend",
-  },
-  {
     id: "angular",
     name: "Angular",
     description:
@@ -133,7 +133,78 @@ const templates: TemplateOption[] = [
     ],
     category: "fullstack",
   },
+  {
+    id: "web-platform",
+    name: "Web Platform",
+    description: "A lightweight static HTML, CSS, and JavaScript starter for the browser.",
+    icon: "/web-platform.svg",
+    color: "#38BDF8",
+    popularity: 4,
+    tags: ["HTML", "CSS", "JavaScript"],
+    features: ["Static HTML", "Modern CSS", "Browser APIs"],
+    category: "frontend",
+  },
+  {
+    id: "vite-react-ts",
+    name: "Vite React TypeScript",
+    description: "A fast React and TypeScript starter powered by Vite.",
+    icon: "/vite.svg",
+    color: "#646CFF",
+    popularity: 5,
+    tags: ["React", "Vite", "TypeScript"],
+    features: ["Fast HMR", "React", "TypeScript"],
+    category: "frontend",
+  },
+  {
+    id: "tutorialkit",
+    name: "TutorialKit",
+    description: "An interactive documentation and tutorial project starter.",
+    icon: "/tutorialkit.svg",
+    color: "#F59E0B",
+    popularity: 3,
+    tags: ["Tutorials", "Docs", "Learning"],
+    features: ["Interactive Lessons", "Documentation", "Exercises"],
+    category: "fullstack",
+  },
+  {
+    id: "typescript",
+    name: "TypeScript",
+    description: "A minimal TypeScript starter for building typed applications.",
+    icon: "/typescript.svg",
+    color: "#3178C6",
+    popularity: 4,
+    tags: ["TypeScript", "Node.js", "Typed"],
+    features: ["Type Checking", "Modern Tooling", "JavaScript Output"],
+    category: "backend",
+  },
+  {
+    id: "javascript",
+    name: "JavaScript",
+    description: "A minimal JavaScript starter for quick experiments and apps.",
+    icon: "/javascript.svg",
+    color: "#F7DF1E",
+    popularity: 4,
+    tags: ["JavaScript", "Node.js", "Web"],
+    features: ["Quick Start", "Browser Ready", "Node Compatible"],
+    category: "backend",
+  },
 ];
+
+const requiredTemplateIds = [
+  "react",
+  "express",
+  "nextjs",
+  "angular",
+  "web-platform",
+  "vite-react-ts",
+  "tutorialkit",
+  "typescript",
+  "javascript",
+] as const;
+
+const availableTemplates = requiredTemplateIds
+  .map((templateId) => templates.find((template) => template.id === templateId))
+  .filter((template): template is TemplateOption => Boolean(template));
 
 const TemplateSelectionModal = ({
   isOpen,
@@ -148,7 +219,7 @@ const TemplateSelectionModal = ({
   >("all");
   const [projectName, setProjectName] = useState("");
 
-  const filteredTemplates = templates.filter((template) => {
+  const filteredTemplates = availableTemplates.filter((template) => {
     const matchesSearch =
       template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -176,14 +247,17 @@ const TemplateSelectionModal = ({
     if (selectedTemplate) {
       const templateMap: Record<
         string,
-        "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR"
+        "REACT" | "NEXTJS" | "EXPRESS" | "ANGULAR" | "WEB_PLATFORM" | "VITE_REACT_TS" | "TUTORIALKIT" | "TYPESCRIPT" | "JAVASCRIPT"
       > = {
         react: "REACT",
         nextjs: "NEXTJS",
         express: "EXPRESS",
-        vue: "VUE",
-        hono: "HONO",
         angular: "ANGULAR",
+        "web-platform": "WEB_PLATFORM",
+        "vite-react-ts": "VITE_REACT_TS",
+        tutorialkit: "TUTORIALKIT",
+        typescript: "TYPESCRIPT",
+        javascript: "JAVASCRIPT",
       };
 
       const template = templates.find((t) => t.id === selectedTemplate);
@@ -237,12 +311,14 @@ const TemplateSelectionModal = ({
         }
       }}
     >
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-7xl max-h-[calc(100vh-2rem)] overflow-y-auto rounded-2xl border-slate-800 bg-slate-950 p-5 text-slate-100 shadow-2xl sm:max-w-7xl sm:p-8">
         {step === "select" ? (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-[#e93f3f] flex items-center gap-2">
-                <Plus size={24} className="text-[#e93f3f]" />
+              <DialogTitle className="flex items-center gap-2 text-2xl font-bold text-slate-100">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-500/10 text-red-400 ring-1 ring-red-500/20">
+                  <Plus size={20} />
+                </span>
                 Select a Template
               </DialogTitle>
               <DialogDescription>
@@ -270,7 +346,7 @@ const TemplateSelectionModal = ({
                   className="w-full sm:w-auto"
                   onValueChange={(value) => setCategory(value as "all" | "frontend" | "backend" | "fullstack")}
                 >
-                  <TabsList className="grid grid-cols-4 w-full sm:w-[400px]">
+                  <TabsList className="grid h-10 w-full grid-cols-4 border border-slate-800 bg-slate-900 sm:w-100">
                     <TabsTrigger value="all">All</TabsTrigger>
                     <TabsTrigger value="frontend">Frontend</TabsTrigger>
                     <TabsTrigger value="backend">Backend</TabsTrigger>
@@ -283,17 +359,16 @@ const TemplateSelectionModal = ({
                 value={selectedTemplate || ""}
                 onValueChange={handleSelectTemplate}
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:gap-5">
                   {filteredTemplates.length > 0 ? (
                     filteredTemplates.map((template) => (
                       <div
                         key={template.id}
-                        className={`relative flex p-6 border rounded-lg cursor-pointer
-                          transition-all duration-300 hover:scale-[1.02]
+                        className={`relative flex cursor-pointer rounded-xl border p-5 transition-all duration-300 hover:-translate-y-0.5
                           ${
                             selectedTemplate === template.id
-                              ? "border-[#E93F3F]  shadow-[0_0_0_1px_#E93F3F,0_8px_20px_rgba(233,63,63,0.15)]"
-                              : "hover:border-[#E93F3F] shadow-[0_2px_8px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)]"
+                              ? "border-red-400/70 bg-red-500/10 shadow-[0_0_0_1px_rgba(248,113,113,0.35),0_12px_30px_rgba(239,68,68,0.12)]"
+                              : "border-slate-800 bg-slate-900/70 hover:border-red-400/50 hover:bg-slate-900"
                           }`}
                         onClick={() => handleSelectTemplate(template.id)}
                       >
@@ -302,23 +377,17 @@ const TemplateSelectionModal = ({
                         </div>
 
                         {selectedTemplate === template.id && (
-                          <div className="absolute top-2 left-2 bg-[#E93F3F] text-white rounded-full p-1">
+                          <div className="absolute left-2 top-2 rounded-full bg-red-500 p-1 text-white">
                             <Check size={14} />
                           </div>
                         )}
 
                         <div className="flex gap-4">
                           <div
-                            className="relative w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-full"
+                            className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full"
                             style={{ backgroundColor: `${template.color}15` }}
                           >
-                            <Image
-                              src={template.icon || "/placeholder.svg"}
-                              alt={`${template.name} icon`}
-                              width={40}
-                              height={40}
-                              className="object-contain"
-                            />
+                            <TemplateIcon template={template} />
                           </div>
 
                           <div className="flex flex-col">
@@ -345,7 +414,7 @@ const TemplateSelectionModal = ({
                               </div>
                             </div>
 
-                            <p className="text-sm text-muted-foreground mb-3">
+                            <p className="mb-3 text-sm leading-5 text-slate-400">
                               {template.description}
                             </p>
 
@@ -353,7 +422,7 @@ const TemplateSelectionModal = ({
                               {template.tags.map((tag) => (
                                 <span
                                   key={tag}
-                                  className="text-xs px-2 py-1 border rounded-2xl"
+                                  className="rounded-full border border-slate-700 bg-slate-800/70 px-2 py-1 text-xs text-slate-400"
                                 >
                                   {tag}
                                 </span>

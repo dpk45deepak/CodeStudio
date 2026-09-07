@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
       "./vibecode-starters/vue/**",
       "./vibecode-starters/hono-nodejs-starter/**",
       "./vibecode-starters/angular/**",
+      "./vibecode-starters/web-platform/**",
+      "./vibecode-starters/vite-shadcn/**",
+      "./vibecode-starters/tutorialkit/**",
+      "./vibecode-starters/typescript/**",
+      "./vibecode-starters/js/**",
     ],
   },
   images: {
